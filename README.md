@@ -4,7 +4,7 @@ Plan:
 
 VAEs + RNNs + RL
 
-# Useful command
+# Useful commands
 
 ```bash
 # Install dependencies:
@@ -19,3 +19,14 @@ pytest
 Tensorboard 2.4.1 is using `np.bool` and `np.object`, which are deprecated. 
 To avoid warning, replace those by `bool` and `object`.
 
+# DeepGreen commands
+
+```
+# allocate a node
+srun -p dg-jup --gres=gpu:1 --pty bash
+# load newest software pack
+module load spack/spack-0.15.4
+. $SPACK_ROOT/share/spack/setup-env.sh
+# run
+python run.py
+```

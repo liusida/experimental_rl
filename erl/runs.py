@@ -7,4 +7,4 @@ def run():
 
 def run1(render=False):
     exp1 = Experiment(features_extractor_class=DefaultFeaturesExtractor, env_id="DefaultEnv-v0", render=render)
-    exp1.train()
+    exp1.train(total_timesteps=1e8)

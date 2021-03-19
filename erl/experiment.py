@@ -24,10 +24,10 @@ class Experiment:
         env = gym.make(self.env_id)
         if self.render:
             env.render(mode="human")
-        self.model = algorithm(policy, env, policy_kwargs={"features_extractor_class":features_extractor_class})
+        self.model = algorithm(policy, env, tensorboard_log="tb", policy_kwargs={"features_extractor_class":features_extractor_class})
 
-    def train(self) -> None:
+    def train(self, total_timesteps=1e4) -> None:
         """ Start training """
-        print("train")
-        self.model.learn(100)
+        print(f"train using {self.model.device.type}")
+        self.model.learn(total_timesteps)
 
