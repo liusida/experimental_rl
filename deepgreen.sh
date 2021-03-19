@@ -10,4 +10,4 @@ cd ${SLURM_SUBMIT_DIR}
 
 source activate erl
 
-time python run.py
+time python $@
