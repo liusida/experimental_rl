@@ -2,30 +2,32 @@ from .tests.erl.test_experiment import *
 
 import gym
 from stable_baselines3 import PPO
-import pybullet_envs
-
+from stable_baselines3.common.torch_layers import FlattenExtractor
+import erl.envs # need this to register the bullet envs
 
 class Experiment:
+    """ One experiment is a treatment group or a control group.
+    It should contain: (1) environments, (2) policies, (3) training, (4) testing.
+    The results should be able to compare with other experiments.
+    """
     def __init__(self,
-                 env_id="HumanoidFlagrunHarderBulletEnv-v0",
+                 env_id="DefaultEnv-v0",
+                 algorithm=PPO,
+                 policy="MlpPolicy",
+                 features_extractor_class=FlattenExtractor,
                  render=True,
                  ) -> None:
         """ Init with parameters to control the training process """
         self.env_id = env_id
         self.render = render
 
-    def train(self) -> None:
-        """ Start training """
         env = gym.make(self.env_id)
         if self.render:
             env.render(mode="human")
-        model = PPO('MlpPolicy', env)
-        model.learn(100)
-        env.close()
+        self.model = algorithm(policy, env, policy_kwargs={"features_extractor_class":features_extractor_class})
 
+    def train(self) -> None:
+        """ Start training """
         print("train")
+        self.model.learn(100)
 
-    def test(self) -> None:
-        """ Start testing """
-        
-        print("test")
