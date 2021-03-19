@@ -1,3 +1,3 @@
 import erl
 
-erl.run1()
+erl.run1(render=True)
