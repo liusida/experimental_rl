@@ -29,6 +29,9 @@ class VAEFeaturesExtractor(BaseFeaturesExtractor):
         self.vae = VanillaVAE(in_channels=3, latent_dim=self.vae_latent_dim)
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
+        """
+        TODO: The plan is to wire this with VAE and RNN, but How?
+        """
         # need to cut the observations in a specific way, so that we can recover the camera image.
         basic_state = observations[:,:46]
         camera_img = observations[:,46:].view(-1,3,256,256)
