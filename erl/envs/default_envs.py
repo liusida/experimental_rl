@@ -1,4 +1,5 @@
 import os
+import gym
 import numpy as np
 import pybullet_envs
 from pybullet_envs.gym_locomotion_envs import HumanoidFlagrunBulletEnv, HumanoidBulletEnv
@@ -21,7 +22,7 @@ class DefaultRobot(HumanoidFlagrun):
         self.gravity = -9.8
         super().__init__()
         
-        # Rewrite the robot XML file:
+        # Reset the robot XML file:
         total_joints = 18
         WalkerBase.__init__(self,
                             f'{os.getcwd()}/erl/envs/xmls/humanoid_symmetric.xml',
@@ -32,6 +33,17 @@ class DefaultRobot(HumanoidFlagrun):
                             # WxHxC from camera image
                             obs_dim=10 + total_joints*2 + self.camera_width*self.camera_height*self.camera_channel, 
                             power=0.41)
+
+        # Dict observation not supported
+        # https://github.com/DLR-RM/stable-baselines3/issues/357
+        # self.observation_space = gym.spaces.Dict({
+        #     'observation': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
+        #     'achieved_goal': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
+        #     'desired_goal': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(1,)),
+        #     'torso': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(10,)),
+        #     'joints': gym.spaces.Box(low=-np.inf, high=np.inf, shape=(total_joints*2,)),
+        #     'camera': gym.spaces.Box(low=0.0, high=1.0, shape=(self.camera_width, self.camera_width, self.camera_channel)),
+        # })
 
 
     def get_camera_image(self, width=256, height=256):
@@ -73,14 +85,20 @@ class DefaultRobot(HumanoidFlagrun):
         # basic_state: 46 dimensions
         basic_state = super().calc_state()
 
-        # camera_img: 262144 dimensions (256x256x3)
+        # camera_img: 262144 dimensions (256x256x4)
         camera_img = self.get_camera_image()
         # remove the Alpha channel to save space
         # camera_img: 196608 dimensions (256x256x3)
-        camera_img = camera_img[:,:,:3].flatten()
-
-        state = np.concatenate([basic_state, camera_img])
-        return state
+        camera_img = camera_img[:,:,:3] / 255.0
+        #(WxHxC) => (CxHxW)
+        camera_img = np.swapaxes(camera_img, 0, 2)
+        
+        # Flatten the observation and reconstruct them in the feature extractor.
+        # Hard coded warning. see vae_extractor.py
+        # basic_state = [:46] and camera_img = obs[46:].view(3,256,256)
+        camera_img = camera_img.flatten()
+        obs = np.concatenate([basic_state, camera_img])
+        return obs
 
 class DefaultEnv(HumanoidFlagrunBulletEnv):
     def __init__(self, render=False):
