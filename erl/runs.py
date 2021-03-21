@@ -23,6 +23,6 @@ def run_mnist_two_layers(args):
     exp.train(num_epochs=10)
 
 def run_current_exp(args):
-    # exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", save_model_path="trained_models/vae.pth")
-    exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", pretrained_model_path="trained_models/vae.pth", save_model_path="trained_models/vae.pth")
+    exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", save_model_path="trained_models/vae.pth")
+    # exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", pretrained_model_path="trained_models/vae.pth", save_model_path="trained_models/vae.pth")
     exp.train(num_epochs=100)

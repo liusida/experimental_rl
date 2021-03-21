@@ -13,11 +13,12 @@ class BasicVAEExperiment:
     def __init__(self, network_class, experiment_name = "mnist_vae", network_args={}, pretrained_model_path=None, save_model_path=None) -> None:
         self.experiment_name = experiment_name
 
+        self.default_img_size = 32
         self.train_loader = None
         self.test_loader = None
         self.use_cuda = torch.cuda.is_available()
         self.device = torch.device("cuda" if self.use_cuda else "cpu")
-        self.model = network_class(**network_args).to(self.device)
+        self.model = network_class(default_img_size=self.default_img_size, **network_args).to(self.device)
         if pretrained_model_path is not None: # load pretrained model
             if os.path.exists(pretrained_model_path):
                 self.model.load_state_dict(torch.load(pretrained_model_path))
@@ -26,6 +27,7 @@ class BasicVAEExperiment:
         self.save_model_path = save_model_path
 
         self.optimizer = optim.Adam(self.model.parameters())
+
         self.setup_log()
         self.load_mnist()
 
@@ -42,7 +44,7 @@ class BasicVAEExperiment:
     def load_mnist(self):
         self.normalize_mean = 0.5
         self.normalize_std = 0.5
-        train_kwargs = {'batch_size': 128}
+        train_kwargs = {'batch_size': 256}
         test_kwargs = {'batch_size': 10}
         if self.use_cuda:
             cuda_kwargs = {'num_workers': 1,
@@ -52,7 +54,7 @@ class BasicVAEExperiment:
             test_kwargs.update(cuda_kwargs)
             test_kwargs.update({'shuffle': False})
         transform = transforms.Compose([
-            transforms.Resize(32),
+            transforms.Resize(self.default_img_size),
             transforms.ToTensor(),
             transforms.Normalize((self.normalize_mean,), (self.normalize_std,)),
         ])
@@ -100,9 +102,9 @@ class BasicVAEExperiment:
                 recons_1, mu, sigma = self.model(data)
 
                 for i in range(3):
-                    _source = data[i].view(32,32)
-                    _recon = recons[i].view(32,32)
-                    _recon_1 = recons_1[i].view(32,32)
+                    _source = data[i].view(self.default_img_size,self.default_img_size)
+                    _recon = recons[i].view(self.default_img_size,self.default_img_size)
+                    _recon_1 = recons_1[i].view(self.default_img_size,self.default_img_size)
                     
                     _source = self.denormalize(_source)
                     _recon = self.denormalize(_recon)
