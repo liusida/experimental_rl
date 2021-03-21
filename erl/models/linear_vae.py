@@ -1,5 +1,3 @@
-# From: https://github.com/AntixK/PyTorch-VAE/blob/master/models/vanilla_vae.py
-
 from typing import *
 import torch
 from torch import Tensor
@@ -9,133 +7,46 @@ from torch.nn.modules import module
 
 
 class VanillaVAE(nn.Module):
-
-    def __init__(self,
-                 latent_dim: int = 128,
-                 hidden_dims: List = [784, 512, 256],  # mnist
-                 **kwargs) -> None:
+    def __init__(self, x_dim=784, h_dim1= 512, h_dim2=256, z_dim=2):
         super(VanillaVAE, self).__init__()
-        self.hidden_dims = hidden_dims.copy()
-        self.latent_dim = latent_dim
-
-        modules = []
-
-        # Build Encoder
-        for i in range(len(hidden_dims) - 1):
-            modules.append(nn.Linear(in_features=hidden_dims[i], out_features=hidden_dims[i+1]))
-            modules.append(nn.ReLU())
-
-        self.encoder = nn.Sequential(*modules)
-        self.fc_mu = nn.Linear(hidden_dims[-1], latent_dim)
-        self.fc_var = nn.Linear(hidden_dims[-1], latent_dim)
-
-        # Build Decoder
-        modules = []
-
-        self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1])
-
-        hidden_dims.reverse()
-
-        for i in range(len(hidden_dims) - 1):
-            modules.append(nn.Linear(in_features=hidden_dims[i], out_features=hidden_dims[i+1]))
-            modules.append(nn.Tanh())
-
-        self.decoder = nn.Sequential(*modules)
-
-    def encode(self, input: Tensor) -> List[Tensor]:
-        """
-        Encodes the input by passing through the encoder network
-        and returns the latent codes.
-        :param input: (Tensor) Input tensor to encoder [N x C x H x W]
-        :return: (Tensor) List of latent codes
-        """
-        result = self.encoder(input)
-
-        # Split the result into mu and var components
-        # of the latent Gaussian distribution
-        mu = self.fc_mu(result)
-        log_var = self.fc_var(result)
-
-        return [mu, log_var]
-
-    def decode(self, z: Tensor) -> Tensor:
-        """
-        Maps the given latent codes
-        onto the image space.
-        :param z: (Tensor) [B x D]
-        :return: (Tensor) [B x C x H x W]
-        """
-        result = self.decoder_input(z)
-        result = self.decoder(result)
-        return result
-
-    def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
-        """
-        Reparameterization trick to sample from N(mu, var) from
-        N(0,1).
-        :param mu: (Tensor) Mean of the latent Gaussian [B x D]
-        :param logvar: (Tensor) Standard deviation of the latent Gaussian [B x D]
-        :return: (Tensor) [B x D]
-        """
-        std = torch.exp(0.5 * logvar)
+        
+        # encoder part
+        self.fc1 = nn.Linear(x_dim, h_dim1)
+        self.fc2 = nn.Linear(h_dim1, h_dim2)
+        self.fc31 = nn.Linear(h_dim2, z_dim)
+        self.fc32 = nn.Linear(h_dim2, z_dim)
+        # decoder part
+        self.fc4 = nn.Linear(z_dim, h_dim2)
+        self.fc5 = nn.Linear(h_dim2, h_dim1)
+        self.fc6 = nn.Linear(h_dim1, x_dim)
+        
+    def encoder(self, x):
+        h = F.relu(self.fc1(x))
+        h = F.relu(self.fc2(h))
+        return self.fc31(h), self.fc32(h) # mu, log_var
+    
+    def sampling(self, mu, log_var):
+        std = torch.exp(0.5*log_var)
         eps = torch.randn_like(std)
-        return eps * std + mu
+        return eps.mul(std).add_(mu) # return z sample
+        
+    def decoder(self, z):
+        h = F.relu(self.fc4(z))
+        h = F.relu(self.fc5(h))
+        return F.sigmoid(self.fc6(h)) 
+    
+    def forward(self, x):
+        mu, log_var = self.encoder(x.view(-1, 784))
+        z = self.sampling(mu, log_var)
+        return self.decoder(z), mu, log_var
 
-    def forward(self, input: Tensor, **kwargs) -> List[Tensor]:
-        self.batch_size = input.shape[0]
-        input = torch.flatten(input, start_dim=1)
+    # return reconstruction error + KL divergence losses
+    # def loss_function(self, recon_x, x, mu, log_var):
+    #     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='sum')
+    #     KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+    #     return BCE + KLD
 
-        mu, log_var = self.encode(input)
-        z = self.reparameterize(mu, log_var)
-        reconstructed = self.decode(z)
-        return [reconstructed, input, mu, log_var]
-
-    def loss_function(self,
-                      *args,
-                      **kwargs) -> dict:
-        """
-        Computes the VAE loss function.
-        KL(N(\mu, \sigma), N(0, 1)) = \log \frac{1}{\sigma} + \frac{\sigma^2 + \mu^2}{2} - \frac{1}{2}
-        :param args:
-        :param kwargs:
-        :return:
-        """
-        recons = args[0]
-        input = args[1]
-        mu = args[2]
-        log_var = args[3]
-
-        kld_weight = kwargs['M_N']  # Account for the minibatch samples from the dataset
-        recons_loss = F.mse_loss(recons, input)
-
-        kld_loss = torch.mean(-0.5 * torch.sum(1 + log_var - mu ** 2 - log_var.exp(), dim=1), dim=0)
-
-        loss = recons_loss + kld_weight * kld_loss
-        return {'loss': loss, 'Reconstruction_Loss': recons_loss, 'KLD': -kld_loss}
-
-    def sample(self,
-               num_samples: int,
-               current_device: int, **kwargs) -> Tensor:
-        """
-        Samples from the latent space and return the corresponding
-        image space map.
-        :param num_samples: (Int) Number of samples
-        :param current_device: (Int) Device to run the model
-        :return: (Tensor)
-        """
-        z = torch.randn(num_samples,
-                        self.latent_dim)
-
-        z = z.to(current_device)
-
-        samples = self.decode(z)
-        return samples
-
-    def generate(self, x: Tensor, **kwargs) -> Tensor:
-        """
-        Given an input image x, returns the reconstructed image
-        :param x: (Tensor) [B x C x H x W]
-        :return: (Tensor) [B x C x H x W]
-        """
-
-        return self.forward(x)[0]
+    def loss_function(self, recon_x, x, mu, log_var):
+        BCE = F.binary_cross_entropy(recon_x, x.view(-1, 784), reduction='mean')
+        # KLD = -0.5 * torch.sum(1 + log_var - mu.pow(2) - log_var.exp())
+        return BCE

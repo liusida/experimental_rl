@@ -4,7 +4,8 @@ from erl.experiments.vae.basic_vae import BasicVAEExperiment
 from erl.features_extractors import DefaultFeaturesExtractor, VAEFeaturesExtractor
 from erl.models.simple import SimpleNet
 from erl.models.twolayers import TwoLayerNet
-from erl.models.linear_vae import VanillaVAE
+from erl.models.vae import VanillaVAE
+
 def run():
     t = RLExperiment()
     t.train()
@@ -22,5 +23,6 @@ def run_mnist_two_layers(args):
     exp.train(num_epochs=10)
 
 def run_current_exp(args):
+    # exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", save_model_path="trained_models/vae.pth")
     exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", pretrained_model_path="trained_models/vae.pth", save_model_path="trained_models/vae.pth")
     exp.train(num_epochs=100)

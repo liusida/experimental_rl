@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from torchvision import datasets, transforms
 from stable_baselines3.common import logger
 from stable_baselines3.common.utils import get_latest_run_id
+from torchvision.transforms.transforms import Resize
 
 
 class BasicVAEExperiment:
@@ -39,9 +40,9 @@ class BasicVAEExperiment:
         print(f"Write to {save_path}")
 
     def load_mnist(self):
-        self.normalize_mean = 0.1307
-        self.normalize_std = 0.3081
-        train_kwargs = {'batch_size': 64}
+        self.normalize_mean = 0.5
+        self.normalize_std = 0.5
+        train_kwargs = {'batch_size': 128}
         test_kwargs = {'batch_size': 10}
         if self.use_cuda:
             cuda_kwargs = {'num_workers': 1,
@@ -51,6 +52,7 @@ class BasicVAEExperiment:
             test_kwargs.update(cuda_kwargs)
             test_kwargs.update({'shuffle': False})
         transform = transforms.Compose([
+            transforms.Resize(32),
             transforms.ToTensor(),
             transforms.Normalize((self.normalize_mean,), (self.normalize_std,)),
         ])
@@ -68,8 +70,8 @@ class BasicVAEExperiment:
             for batch_idx, (data, target) in enumerate(self.train_loader):
                 data, target = data.to(self.device), target.to(self.device)
                 self.optimizer.zero_grad()
-                output = self.model(data)
-                loss = self.model.loss_function(*output, M_N=1)['loss'] # loss function defined with the model 
+                recon, mu, sigma = self.model(data)
+                loss = self.model.loss_function(recon, data, mu, sigma) # loss function defined with the model 
                 loss.backward()
                 self.optimizer.step()
                 if batch_idx % 100 == 0:
@@ -92,18 +94,22 @@ class BasicVAEExperiment:
         with torch.no_grad():
             for data, target in self.test_loader:
                 data, target = data.to(self.device), target.to(self.device)
-                recons, _inputs, mu, sigma = self.model(data)
+                recons, mu, sigma = self.model(data)
                 logger.record(f"latent/mu", mu)
                 logger.record(f"latent/sigma", sigma)
+                recons_1, mu, sigma = self.model(data)
+
                 for i in range(3):
-                    _input = _inputs[i].view(28,28)
-                    _source = data[i].view(28,28)
-                    _recon = recons[i].view(28,28)
+                    _source = data[i].view(32,32)
+                    _recon = recons[i].view(32,32)
+                    _recon_1 = recons_1[i].view(32,32)
                     
                     _source = self.denormalize(_source)
                     _recon = self.denormalize(_recon)
+                    _recon_1 = self.denormalize(_recon_1)
 
-                    _img = torch.cat([_source, _recon], dim=1)
+                    _img = torch.cat([_source, _recon, _recon_1], dim=1)
+                    # _img = torch.clip(_img, 0.0, 1.0)
                     # logger.record(f"source/({i})_{target[i]}", logger.Image(_source, "HW"))
                     # logger.record(f"recon/({i})_{target[i]}", logger.Image(_recon, "HW"))
 
