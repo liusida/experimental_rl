@@ -39,17 +39,18 @@ class VanillaVAE(BaseVAE):
 
 
     def __init__(self,
-                 in_channels: int,
-                 latent_dim: int,
-                 hidden_dims: List = None,
+                 in_channels: int = 1,
+                 latent_dim: int = 128,
+                 hidden_dims: List = [32, 64, 128, 256], # mnist 
+                 size_after_cnn: int = 2, # mnist 32 -> 16 -> 8 -> 4 -> 2
                  **kwargs) -> None:
         super(VanillaVAE, self).__init__()
-        self.size_after_cnn = 64
+        self.in_channels = in_channels
+        self.size_after_cnn = size_after_cnn
+        self.hidden_dims = hidden_dims.copy()
         self.latent_dim = latent_dim
 
         modules = []
-        if hidden_dims is None:
-            hidden_dims = [32, 64, 128, 256, 512]
 
         # Build Encoder
         for h_dim in hidden_dims:
@@ -63,14 +64,14 @@ class VanillaVAE(BaseVAE):
             in_channels = h_dim
 
         self.encoder = nn.Sequential(*modules)
-        self.fc_mu = nn.Linear(hidden_dims[-1]*self.size_after_cnn, latent_dim)
-        self.fc_var = nn.Linear(hidden_dims[-1]*self.size_after_cnn, latent_dim)
+        self.fc_mu = nn.Linear(hidden_dims[-1]*self.size_after_cnn*self.size_after_cnn, latent_dim)
+        self.fc_var = nn.Linear(hidden_dims[-1]*self.size_after_cnn*self.size_after_cnn, latent_dim)
 
 
         # Build Decoder
         modules = []
 
-        self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * self.size_after_cnn)
+        self.decoder_input = nn.Linear(latent_dim, hidden_dims[-1] * self.size_after_cnn *self.size_after_cnn)
 
         hidden_dims.reverse()
 
@@ -87,8 +88,6 @@ class VanillaVAE(BaseVAE):
                     nn.LeakyReLU())
             )
 
-
-
         self.decoder = nn.Sequential(*modules)
 
         self.final_layer = nn.Sequential(
@@ -100,9 +99,10 @@ class VanillaVAE(BaseVAE):
                                                output_padding=1),
                             nn.BatchNorm2d(hidden_dims[-1]),
                             nn.LeakyReLU(),
-                            nn.Conv2d(hidden_dims[-1], out_channels= 3,
+                            nn.Conv2d(hidden_dims[-1], out_channels= self.in_channels,
                                       kernel_size= 3, padding= 1),
                             nn.Tanh())
+
 
     def encode(self, input: Tensor) -> List[Tensor]:
         """
@@ -112,6 +112,13 @@ class VanillaVAE(BaseVAE):
         :return: (Tensor) List of latent codes
         """
         result = self.encoder(input)
+        # To see the dimensions:
+        # result = input
+        # print(f"before anything: {result.shape}")
+        # for i in range(len(self.encoder)):
+        #     result = self.encoder[i](result)
+        #     print(f"after encoder[{i}] ({self.encoder[i]}): {result.shape}")
+
         result = torch.flatten(result, start_dim=1)
 
         # Split the result into mu and var components
@@ -129,9 +136,17 @@ class VanillaVAE(BaseVAE):
         :return: (Tensor) [B x C x H x W]
         """
         result = self.decoder_input(z)
-        result = result.view(-1, 512, 2, 2)
+        result = result.view(-1, self.hidden_dims[-1], self.size_after_cnn, self.size_after_cnn)
+        assert self.batch_size == result.shape[0], "view() disrupts the dimension, please check the shape."
         result = self.decoder(result)
+
         result = self.final_layer(result)
+        # To see the dimension:
+        # print(f"after decoder: {result.shape}")
+        # for i in range(5):
+        #     result = self.final_layer[i](result)
+        #     print(f"after final_layer[{i}] ({self.final_layer[i]}): {result.shape}")
+
         return result
 
     def reparameterize(self, mu: Tensor, logvar: Tensor) -> Tensor:
@@ -147,6 +162,7 @@ class VanillaVAE(BaseVAE):
         return eps * std + mu
 
     def forward(self, input: Tensor, **kwargs) -> List[Tensor]:
+        self.batch_size = input.shape[0]
         mu, log_var = self.encode(input)
         z = self.reparameterize(mu, log_var)
         return  [self.decode(z), input, mu, log_var]
