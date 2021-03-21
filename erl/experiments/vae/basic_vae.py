@@ -7,8 +7,6 @@ from torchvision import datasets, transforms
 from stable_baselines3.common import logger
 from stable_baselines3.common.utils import get_latest_run_id
 
-from erl.models.simple import SimpleNet
-
 
 class BasicVAEExperiment:
     def __init__(self, network_class, experiment_name = "mnist_vae", network_args={}, pretrained_model_path=None, save_model_path=None) -> None:
@@ -64,11 +62,6 @@ class BasicVAEExperiment:
         self.test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     def train(self, num_epochs=1):
-        def debug_imshow(img):
-            img = img.detach().cpu().numpy().reshape(28,28)
-            import matplotlib.pyplot as plt
-            plt.imshow(img)
-            plt.show()
         current_step = 0 # How many data points have been visited.
         for epoch in range(num_epochs):
             self.model.train()
