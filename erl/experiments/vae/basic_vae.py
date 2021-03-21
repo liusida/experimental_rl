@@ -26,7 +26,7 @@ class BasicVAEExperiment:
                 print("Warning: pretrained model not found. Training from scratch.")
         self.save_model_path = save_model_path
 
-        self.optimizer = optim.Adadelta(self.model.parameters(), lr=0.01)
+        self.optimizer = optim.Adam(self.model.parameters())
         self.setup_log()
         self.load_mnist()
 
@@ -54,7 +54,6 @@ class BasicVAEExperiment:
             test_kwargs.update({'shuffle': False})
         transform = transforms.Compose([
             transforms.ToTensor(),
-            transforms.Resize(32),
             transforms.Normalize((self.normalize_mean,), (self.normalize_std,)),
         ])
         # download is not available according to https://github.com/pytorch/vision/issues/1938
@@ -65,6 +64,11 @@ class BasicVAEExperiment:
         self.test_loader = torch.utils.data.DataLoader(dataset2, **test_kwargs)
 
     def train(self, num_epochs=1):
+        def debug_imshow(img):
+            img = img.detach().cpu().numpy().reshape(28,28)
+            import matplotlib.pyplot as plt
+            plt.imshow(img)
+            plt.show()
         current_step = 0 # How many data points have been visited.
         for epoch in range(num_epochs):
             self.model.train()
@@ -99,14 +103,14 @@ class BasicVAEExperiment:
                 logger.record(f"latent/mu", mu)
                 logger.record(f"latent/sigma", sigma)
                 for i in range(3):
-                    _input = _inputs[i].view(32,32)
-                    _source = data[i].view(32,32)
-                    _recon = recons[i].view(32,32)
+                    _input = _inputs[i].view(28,28)
+                    _source = data[i].view(28,28)
+                    _recon = recons[i].view(28,28)
                     
                     _source = self.denormalize(_source)
                     _recon = self.denormalize(_recon)
 
-                    _img = torch.cat([_source, _input, _recon], dim=1)
+                    _img = torch.cat([_source, _recon], dim=1)
                     # logger.record(f"source/({i})_{target[i]}", logger.Image(_source, "HW"))
                     # logger.record(f"recon/({i})_{target[i]}", logger.Image(_recon, "HW"))
 

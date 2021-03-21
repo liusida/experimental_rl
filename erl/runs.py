@@ -4,7 +4,7 @@ from erl.experiments.vae.basic_vae import BasicVAEExperiment
 from erl.features_extractors import DefaultFeaturesExtractor, VAEFeaturesExtractor
 from erl.models.simple import SimpleNet
 from erl.models.twolayers import TwoLayerNet
-from erl.models.vae import VanillaVAE
+from erl.models.linear_vae import VanillaVAE
 def run():
     t = RLExperiment()
     t.train()
