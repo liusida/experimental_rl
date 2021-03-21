@@ -1,11 +1,11 @@
-from .tests.erl.test_experiment import *
+from erl.tests.erl.test_rl_experiment import *
 
 import gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs # need this to register the bullet envs
 
-class Experiment:
+class RLExperiment:
     """ One experiment is a treatment group or a control group.
     It should contain: (1) environments, (2) policies, (3) training, (4) testing.
     The results should be able to compare with other experiments.
