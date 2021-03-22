@@ -91,7 +91,8 @@ class DefaultRobot(HumanoidFlagrun):
         # camera_img: 196608 dimensions (256x256x3)
         camera_img = camera_img[:,:,:3] / 255.0
         #(WxHxC) => (CxHxW)
-        camera_img = np.swapaxes(camera_img, 0, 2)
+        # camera_img = np.swapaxes(camera_img, 0, 2)
+        camera_img = np.rollaxis(camera_img, -1)
         
         # Flatten the observation and reconstruct them in the feature extractor.
         # Hard coded warning. see vae_extractor.py

@@ -1,3 +1,4 @@
+from erl.experiments.vae.vae_with_rl_camera_img import VAECameraExperiment
 from erl.experiments.rl.rl_experiment import RLExperiment
 from erl.experiments.classifications.basic_mnist import BasicMNISTExperiment
 from erl.experiments.vae.basic_vae import BasicVAEExperiment
@@ -5,6 +6,9 @@ from erl.features_extractors import DefaultFeaturesExtractor, VAEFeaturesExtract
 from erl.models.simple import SimpleNet
 from erl.models.twolayers import TwoLayerNet
 from erl.models.vae import VanillaVAE
+
+def run_current_exp(args):
+    run_vae_camera(args)
 
 def run():
     t = RLExperiment()
@@ -22,7 +26,14 @@ def run_mnist_two_layers(args):
     exp = BasicMNISTExperiment(network_class=TwoLayerNet, experiment_name="two-layer-hidden-16384", network_args={"hidden_dim": 16384})
     exp.train(num_epochs=10)
 
-def run_current_exp(args):
+def run_vae(args):
     exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", save_model_path="trained_models/vae.pth")
     # exp = BasicVAEExperiment(network_class=VanillaVAE, experiment_name="vae", pretrained_model_path="trained_models/vae.pth", save_model_path="trained_models/vae.pth")
     exp.train(num_epochs=100)
+
+def run_vae_camera(args):
+    exp = VAECameraExperiment(network_class=VanillaVAE, pretrained_model_path="trained_models/vae.pth", save_model_path="trained_models/vae.pth")
+    exp.train(num_epochs=100)
+
+def run_rl_with_vae(args):
+    pass

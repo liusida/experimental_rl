@@ -132,8 +132,7 @@ class VanillaVAE(nn.Module):
         z = self.reparameterize(mu, log_var)
         return self.decode(z), mu, log_var
 
-    def loss_function(self, recons, x, mu, log_var, beta_weight=1,
-                      *args) -> dict:
+    def loss_function(self, recons, x, mu, log_var, beta_weight=1.0) -> dict:
         """
         Computes the VAE loss function.
         KL(N(\mu, \sigma), N(0, 1)) = \log \frac{1}{\sigma} + \frac{\sigma^2 + \mu^2}{2} - \frac{1}{2}

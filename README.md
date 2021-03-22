@@ -6,6 +6,12 @@ Plan:
 
 VAEs + RNNs + RL
 
+# Progress
+
+Save 10k camera images during RL training, train a VAE to reconstruct them.
+
+![VAE reconstructs camera image](images/vae_reconstructions.png)
+
 ## Useful commands
 
 ```bash
