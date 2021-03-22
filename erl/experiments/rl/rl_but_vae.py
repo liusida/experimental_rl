@@ -8,8 +8,8 @@ import torch.nn.functional as F
 from torchvision import transforms
 
 from stable_baselines3 import PPO
-# from stable_baselines3.common import logger
-from stable_baselines3.common.callbacks import BaseCallback
+from stable_baselines3.common import logger
+from stable_baselines3.common.callbacks import BaseCallback, EventCallback
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs # need this to register the bullet envs
 
@@ -35,7 +35,7 @@ class TrainVAECallback(BaseCallback):
         camera_img = observations[:,46:].reshape(-1,3,256,256)
         camera_img = camera_img[0] # image from the first environment
         camera_img = self.resize(torch.as_tensor(camera_img))
-        wandb.log({"camera/img": wandb.Image(camera_img), "num_timesteps": self.num_timesteps})
+        logger.record("camera/img", wandb.Image(camera_img.detach().cpu()))
 
         if self.test_img is None:
             self.test_img = camera_img
@@ -57,12 +57,17 @@ class TrainVAECallback(BaseCallback):
         loss = self.model.experiment.vae_model.loss_function(recon, data, mu, sigma, beta_weight=0.2) # loss function defined with the model 
         loss.backward()
         self.model.experiment.optimizer.step()
-        wandb.log({"vae/train_loss": loss.item(), "num_timesteps": self.num_timesteps})
+        logger.record("vae/train_loss", loss.item())
 
         recon, _, _ = self.model.experiment.vae_model(self.test_img)
         _test_img = torch.cat([self.test_img, recon], dim=3)
-        wandb.log({"camera/test_img_reconstruct": wandb.Image(_test_img[0]), "num_timesteps": self.num_timesteps})
+        logger.record("camera/test_img_reconstruct", wandb.Image(_test_img[0].detach().cpu()))
+        logger.dump(step=self.num_timesteps)
 
+class WandbCallback(EventCallback):
+    """ Watch the models, so the architecture can be uploaded to WandB """
+    def _on_training_start(self) -> None:
+        wandb.watch([self.model.policy, self.model.experiment.vae_model], log="all")
 
 class RLButVAEExperiment:
     """ One experiment is a treatment group or a control group.
@@ -100,8 +105,13 @@ class RLButVAEExperiment:
         self.model = algorithm(policy, env, tensorboard_log="tb", policy_kwargs={"features_extractor_class":features_extractor_class})
         self.model.experiment = self # pass the experiment handle into the model, and then into the TrainVAECallback
 
+
     def train(self, total_timesteps=1e4) -> None:
         """ Start training """
         print(f"train using {self.model.device.type}")
-        self.model.learn(total_timesteps, callback=TrainVAECallback(device=self.device))
+        callback = [
+            WandbCallback(),
+            TrainVAECallback(device=self.device),
+        ]
+        self.model.learn(total_timesteps, callback=callback)
 

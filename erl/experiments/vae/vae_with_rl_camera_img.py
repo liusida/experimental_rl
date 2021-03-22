@@ -8,7 +8,7 @@ from torchvision import datasets, transforms
 from stable_baselines3.common import logger
 from stable_baselines3.common.utils import get_latest_run_id
 from torchvision.transforms.transforms import Resize
-
+import wandb
 
 class VAECameraExperiment:
     def __init__(self, network_class, experiment_name = "camera_vae", network_args={}, pretrained_model_path=None, save_model_path=None) -> None:
@@ -40,8 +40,10 @@ class VAECameraExperiment:
         """
         latest_run_id = get_latest_run_id('tb', self.experiment_name)
         save_path = os.path.join('tb', f"{self.experiment_name}_{latest_run_id + 1}")
-        logger.configure(save_path, ['tensorboard'])
+        logger.configure(save_path, ['tensorboard', 'wandb'])
         print(f"Write to {save_path}")
+        wandb.config.hyperparameter = 0
+        wandb.watch([self.model], log="all")
 
     def load_rl_camera(self):
         self.normalize_mean = 0.5
@@ -85,6 +87,7 @@ class VAECameraExperiment:
                 # break # early stop during debugging
             if self.save_model_path is not None: # save model
                 torch.save(self.model.state_dict(), self.save_model_path)
+                wandb.save("model.pth")
 
     def denormalize(self, t):
         denormlized_img = t.mul_(self.normalize_std).add_(self.normalize_mean)
@@ -97,8 +100,8 @@ class VAECameraExperiment:
             for data, target in self.train_loader:
                 data, target = data.to(self.device), target.to(self.device)
                 recons, mu, sigma = self.model(data)
-                logger.record(f"latent/mu", mu)
-                logger.record(f"latent/sigma", sigma)
+                logger.record(f"latent/mu", mu.detach().cpu())
+                logger.record(f"latent/sigma", sigma.detach().cpu())
                 recons_1, mu, sigma = self.model(data)
 
                 for i in range(3):
@@ -115,7 +118,7 @@ class VAECameraExperiment:
                     # logger.record(f"source/({i})_{target[i]}", logger.Image(_source, "HW"))
                     # logger.record(f"recon/({i})_{target[i]}", logger.Image(_recon, "HW"))
 
-                    logger.record(f"compare/({i})_{target[i]}", logger.Image(_img, "CHW"))
-                    logger.record(f"source_dist/({i})_{target[i]}", _source)
-                    logger.record(f"reconstructions_dist/({i})_{target[i]}", _recon)
+                    logger.record(f"compare/({i})_{target[i]}", wandb.Image(_img.detach().cpu()))
+                    logger.record(f"source_dist/({i})_{target[i]}", _source.detach().cpu())
+                    logger.record(f"reconstructions_dist/({i})_{target[i]}", _recon.detach().cpu())
                 break

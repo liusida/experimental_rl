@@ -10,11 +10,11 @@ from erl.models.twolayers import TwoLayerNet
 from erl.models.vae import VanillaVAE
 
 from stable_baselines3.common.logger import WeightsAndBiasesOutputFormat
-WeightsAndBiasesOutputFormat.project = "ERL"
 WeightsAndBiasesOutputFormat.enabled = True
+WeightsAndBiasesOutputFormat.project = "ERL"
 
 def run_current_exp(args):
-    run_vae(args)
+    run_rl_with_vae(args)
 
 def run(args):
     t = RLExperiment()
