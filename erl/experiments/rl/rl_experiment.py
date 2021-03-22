@@ -1,5 +1,3 @@
-from erl.tests.erl.test_rl_experiment import *
-
 import gym
 from stable_baselines3 import PPO
 from stable_baselines3.common.torch_layers import FlattenExtractor
@@ -24,7 +22,7 @@ class RLExperiment:
         env = gym.make(self.env_id)
         if self.render:
             env.render(mode="human")
-        self.model = algorithm(policy, env, tensorboard_log="tb", policy_kwargs={"features_extractor_class":features_extractor_class})
+        self.model = algorithm(policy, env, tensorboard_log="tb", policy_kwargs={"features_extractor_class":features_extractor_class}, n_steps=100)
 
     def train(self, total_timesteps=1e4) -> None:
         """ Start training """

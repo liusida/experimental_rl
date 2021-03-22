@@ -2,15 +2,21 @@ from erl.experiments.vae.vae_with_rl_camera_img import VAECameraExperiment
 from erl.experiments.rl.rl_experiment import RLExperiment
 from erl.experiments.classifications.basic_mnist import BasicMNISTExperiment
 from erl.experiments.vae.basic_vae import BasicVAEExperiment
+from erl.experiments.rl.rl_but_vae import RLButVAEExperiment
+
 from erl.features_extractors import DefaultFeaturesExtractor, VAEFeaturesExtractor
 from erl.models.simple import SimpleNet
 from erl.models.twolayers import TwoLayerNet
 from erl.models.vae import VanillaVAE
 
-def run_current_exp(args):
-    run_vae_camera(args)
+from stable_baselines3.common.logger import WeightsAndBiasesOutputFormat
+WeightsAndBiasesOutputFormat.project = "ERL"
+WeightsAndBiasesOutputFormat.enabled = True
 
-def run():
+def run_current_exp(args):
+    run_vae(args)
+
+def run(args):
     t = RLExperiment()
     t.train()
 
@@ -36,4 +42,6 @@ def run_vae_camera(args):
     exp.train(num_epochs=100)
 
 def run_rl_with_vae(args):
+    exp = RLButVAEExperiment(render=False, features_extractor_class=VAEFeaturesExtractor, vae_class=VanillaVAE)
+    exp.train()
     pass

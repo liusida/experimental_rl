@@ -3,6 +3,8 @@ tmp_*
 tb/
 data/
 trained_models/
+references/
+wandb/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
