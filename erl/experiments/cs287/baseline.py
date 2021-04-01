@@ -23,7 +23,15 @@ class WandbCallback(EventCallback):
     """ Watch the models, so the architecture can be uploaded to WandB """
     def __init__(self):
         super().__init__()
+        self.log_interval = 1000
+        
         self.last_time_length = defaultdict(lambda: 0)
+
+        self.average_episodic_distance_G = 0
+        self.average_episodic_distance_N = 0
+        self.average_episodic_length_G = 0
+        self.average_episodic_length_N = 0
+
 
     def _on_training_start(self) -> None:
         wandb.watch([self.model.policy], log="all", log_freq=100)
@@ -33,12 +41,21 @@ class WandbCallback(EventCallback):
         for env_i in range(self.training_env.num_envs):
             if self.locals['dones'][env_i]:
                 distance_x = self.training_env.envs[env_i].robot.body_xyz[0]
-                wandb.log({f'episodes/distance': distance_x})
-                wandb.log({f'episodes/time_length': self.last_time_length[env_i]})
+                self.average_episodic_distance_N += 1
+                self.average_episodic_distance_G += (distance_x - self.average_episodic_distance_G) / self.average_episodic_distance_N
+
+                self.average_episodic_length_N += 1
+                self.average_episodic_length_G += (self.last_time_length[env_i] - self.average_episodic_length_G) / self.average_episodic_length_N
+
             self.last_time_length[env_i] = self.training_env.envs[env_i].episodic_steps
+        if self.n_calls % self.log_interval!=0:
+            # Skip
+            return
+        wandb.log({f'episodes/distance': self.average_episodic_distance_G})
+        wandb.log({f'episodes/time_length': self.average_episodic_length_G})
 
     def detailed_log(self):
-        if self.n_calls % 100!=0:
+        if self.n_calls % self.log_interval!=0:
             # Skip
             return
         
