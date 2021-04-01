@@ -21,17 +21,17 @@ import wandb
 
 class WandbCallback(EventCallback):
     """ Watch the models, so the architecture can be uploaded to WandB """
+
     def __init__(self):
         super().__init__()
         self.log_interval = 1000
-        
+
         self.last_time_length = defaultdict(lambda: 0)
 
         self.average_episodic_distance_G = 0
         self.average_episodic_distance_N = 0
         self.average_episodic_length_G = 0
         self.average_episodic_length_N = 0
-
 
     def _on_training_start(self) -> None:
         wandb.watch([self.model.policy], log="all", log_freq=100)
@@ -48,28 +48,35 @@ class WandbCallback(EventCallback):
                 self.average_episodic_length_G += (self.last_time_length[env_i] - self.average_episodic_length_G) / self.average_episodic_length_N
 
             self.last_time_length[env_i] = self.training_env.envs[env_i].episodic_steps
-        if self.n_calls % self.log_interval!=0:
+        if self.n_calls % self.log_interval != 0:
             # Skip
             return
-        wandb.log({f'episodes/distance': self.average_episodic_distance_G})
-        wandb.log({f'episodes/time_length': self.average_episodic_length_G})
+        wandb.log({
+            f'episodes/distance': self.average_episodic_distance_G,
+            f'episodes/time_length': self.average_episodic_length_G,
+            'step': self.num_timesteps,
+        })
 
     def detailed_log(self):
-        if self.n_calls % self.log_interval!=0:
+        if self.n_calls % self.log_interval != 0:
             # Skip
             return
-        
+
         for env_i in range(self.training_env.num_envs):
             relative_height = self.training_env.buf_obs[None][env_i][0]
             velocity = self.training_env.buf_obs[None][env_i][3]
-            wandb.log({f'raw_relative_height/env_{env_i}': relative_height})
-            wandb.log({f'raw_velocity/env_{env_i}': velocity})
-
             distance_x = self.training_env.envs[env_i].robot.body_xyz[0]
-            wandb.log({f'raw_distance/env_{env_i}': distance_x})
+            wandb.log({
+                f'raw_relative_height/env_{env_i}': relative_height,
+                f'raw_velocity/env_{env_i}': velocity,
+                f'raw_distance/env_{env_i}': distance_x,
+                'step': self.num_timesteps,
+            })
 
-
-        wandb.log({'network/values': self.locals['values'].detach().mean().cpu().numpy()})
+        wandb.log({
+            'network/values': self.locals['values'].detach().mean().cpu().numpy(),
+            'step': self.num_timesteps,
+        })
 
     def _on_step(self):
         self.episodic_log()
@@ -85,6 +92,7 @@ def make_env(env_id, rank, seed, render, render_index=0):
         env = gym.make(env_id, render=_render)
         return env
     return _init
+
 
 class BaselineExp:
     """ One experiment is a treatment group or a control group.
