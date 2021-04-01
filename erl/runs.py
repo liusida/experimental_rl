@@ -14,7 +14,7 @@ WeightsAndBiasesOutputFormat.enabled = True
 WeightsAndBiasesOutputFormat.project = "ERL"
 
 def run_current_exp(args):
-    run_rl_with_vae(args)
+    run_cs287_baseline(args)
 
 def run(args):
     t = RLExperiment()
@@ -45,3 +45,12 @@ def run_rl_with_vae(args):
     exp = RLButVAEExperiment(render=False, features_extractor_class=VAEFeaturesExtractor, vae_class=VanillaVAE)
     exp.train()
     pass
+
+def run_cs287_baseline(args):
+    from erl.experiments.cs287.baseline import BaselineExp
+    args.seed = 0
+    # args.render = False
+    # args.num_venvs = 16
+    args.total_timesteps = 1e7
+    exp = BaselineExp(args=args)
+    exp.train()
