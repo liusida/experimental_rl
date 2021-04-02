@@ -20,8 +20,10 @@ def run_current_exp(args):
 def run_cs287_baseline(args):
     from erl.experiments.cs287.baseline import BaselineExp
     import erl.features_extractors.cs287 as extractors
-    extractor = extractors.get(args.extractor)
-    exp = BaselineExp(env_id=args.env_id, features_extractor_class=extractor, args=args)
+
+    extractor, extractor_kwargs = extractors.get(args.extractor)
+    
+    exp = BaselineExp(env_id=args.env_id, features_extractor_class=extractor, features_extractor_kwargs=extractor_kwargs, args=args)
     exp.train()
 
 

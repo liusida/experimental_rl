@@ -20,17 +20,16 @@ from erl.tools.wandb_logger import WandbCallback
 import wandb
 
 
-
 def make_env(env_id, rank, seed, render, render_index=0):
     def _init():
         # only render one environment
         _render = render and rank in [render_index]
 
         env = gym.make(env_id, render=_render)
-        
-        assert rank<100, "seed * 100 + rank is assuming rank <100"
+
+        assert rank < 100, "seed * 100 + rank is assuming rank <100"
         env.seed(seed*100 + rank)
-        
+
         return env
     return _init
 
@@ -47,6 +46,7 @@ class BaselineExp:
                  algorithm=PPO,
                  policy="MlpPolicy",
                  features_extractor_class=FlattenExtractor,
+                 features_extractor_kwargs={},
                  ) -> None:
         """ Init with parameters to control the training process """
         self.args = args
@@ -57,7 +57,11 @@ class BaselineExp:
         # Make Environments
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_venvs)])
-        self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs={"features_extractor_class": features_extractor_class})
+        policy_kwargs = {
+            "features_extractor_class": features_extractor_class,
+            "features_extractor_kwargs": features_extractor_kwargs
+        }
+        self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         # Log all arguments
 
