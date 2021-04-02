@@ -12,7 +12,7 @@ from torchvision import transforms
 from stable_baselines3 import PPO
 from stable_baselines3.common import logger
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3.common.callbacks import BaseCallback, EventCallback, CheckpointCallback
+from stable_baselines3.common.callbacks import BaseCallback, EventCallback, EvalCallback
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
@@ -63,7 +63,8 @@ class BaselineExp:
         }
         self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
-        # Log all arguments
+        
+        self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
 
     def train(self) -> None:
         """ Start training """
@@ -71,5 +72,13 @@ class BaselineExp:
 
         callback = [
             WandbCallback(self.args),
+            EvalCallback(
+                self.eval_env,
+                best_model_save_path=None,
+                log_path=None,
+                eval_freq=2000,
+                n_eval_episodes=3,
+                verbose=0,
+            )
         ]
         self.model.learn(self.args.total_timesteps, callback=callback)

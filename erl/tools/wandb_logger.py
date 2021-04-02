@@ -58,7 +58,8 @@ class WandbCallback(EventCallback):
         return super()._init_callback()
 
     def _on_training_start(self) -> None:
-        wandb.watch([self.model.policy], log="all", log_freq=100)
+        wandb.watch([self.model.policy.features_extractor], log="all", log_freq=10)
+        # wandb.watch([self.model.policy], log="parameters", log_freq=10)
         return True
 
     def episodic_log(self):
@@ -67,11 +68,11 @@ class WandbCallback(EventCallback):
                 self.average_episodic_distance_N += 1
                 self.average_episodic_distance_G += (self.last_distance_x - self.average_episodic_distance_G) / self.average_episodic_distance_N
 
-                # self.average_episodic_length_N += 1
-                # self.average_episodic_length_G += (self.last_time_length[env_i] - self.average_episodic_length_G) / self.average_episodic_length_N
+                self.average_episodic_length_N += 1
+                self.average_episodic_length_G += (self.last_time_length[env_i] - self.average_episodic_length_G) / self.average_episodic_length_N
 
             self.last_distance_x = self.training_env.envs[env_i].robot.body_xyz[0]
-            # self.last_time_length[env_i] = self.training_env.envs[env_i].episodic_steps
+            self.last_time_length[env_i] = self.training_env.envs[env_i]._elapsed_steps
         if self.n_calls % self.log_interval != 0:
             # Skip
             return
@@ -113,15 +114,53 @@ class WandbCallback(EventCallback):
         if self.n_calls % self.model_save_interval == 0:
             filename = f"checkpoints/model_at_{self.num_timesteps}_steps.zip"
             policy_filename = f"checkpoints/policy_at_{self.num_timesteps}_steps.h5"
+            
+            # Note: if we set the `experiment` member variable, the model will fail to save to local file system
+            # So make a copy of the model and change the `experiment` member variable.
             _model = copy.copy(self.model)
             _model.experiment = None
             _model.save(os.path.join(wandb.run.dir, filename))
             _model.policy.save(os.path.join(wandb.run.dir, policy_filename))
+            # After save to local file system, upload it to wandb
             wandb.save(filename)
             wandb.save(policy_filename)
+
+
+    def camera_simpy_follow_robot(self, p, robot, rotate=True):
+        if not hasattr(self, "camera_angle"): # lazy init
+            self.camera_angle = 0.0
+        self.camera_angle += 5
+        distance = 3
+        pitch = -30
+        if rotate:
+            # rotate at 60 degree.
+            yaw = (self.camera_angle//60)*60
+        else:
+            yaw = 0
+
+        # Why I need to '*1.1' here?
+        _current_x = robot.body_xyz[0] * 1.1
+        _current_y = robot.body_xyz[1] * 1.1
+
+        lookat = [_current_x, _current_y, 0.7]
+        p.resetDebugVisualizerCamera(distance, yaw, pitch, lookat)
+
+    def save_camera_img(self):
+        if self.n_calls % self.log_interval == 0:
+            width = 640
+            height = 480
+            env = self.model.env.envs[0]
+            p = env.env._p
+            self.camera_simpy_follow_robot(p, env.robot)
+            _, _, rgbPixels, _, _ = p.getCameraImage(width=width, height=height)
+            camera_img = rgbPixels[:,:,:3] / 255.0
+            # crop
+            camera_img = camera_img[ int(height/5):int(height*4/5), int(width/5):int(width*4/5) ]
+            wandb.log({"images/screenshots": [wandb.Image(camera_img)]})
 
     def _on_step(self):
         self.episodic_log()
         self.detailed_log()
         self.save_model()
+        self.save_camera_img()
         return True
