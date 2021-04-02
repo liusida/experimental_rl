@@ -25,7 +25,7 @@ class WeightsAndBiasesOutputFormat(logger.KVWriter):
         if current_hostname.startswith("dg-"):
             current_hostname = "DeepGreen"
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        wandb.init(project=f"{self.project}[{current_hostname}]{current_date}", config=vars(args))
+        wandb.init(project=f"{self.project}[{current_hostname}]{current_date}", config=vars(args), tags=[args.extractor])
     def write(self, key_values: Dict[str, Any], key_excluded: Dict[str, Union[str, Tuple[str, ...]]], step: int = 0) -> None:
         key_values.update({'step': step})
         wandb.log(key_values)

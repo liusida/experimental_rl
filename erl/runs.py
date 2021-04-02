@@ -44,9 +44,11 @@ def run_rl_with_vae(args):
 
 def run_cs287_baseline(args):
     from erl.experiments.cs287.baseline import BaselineExp
+    import erl.features_extractors.cs287 as extractors
+    extractor = extractors.get(args.extractor)
     args.seed = 0
     # args.render = False
     # args.num_venvs = 16
     args.total_timesteps = 1e6
-    exp = BaselineExp(env_id="HopperBulletEnv-v0", args=args)
+    exp = BaselineExp(env_id="HopperBulletEnv-v0", features_extractor_class=extractor, args=args)
     exp.train()
