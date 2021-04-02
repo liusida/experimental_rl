@@ -12,7 +12,7 @@ from torchvision import transforms
 from stable_baselines3 import PPO
 from stable_baselines3.common import logger
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3.common.callbacks import BaseCallback, EventCallback
+from stable_baselines3.common.callbacks import BaseCallback, EventCallback, CheckpointCallback
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
@@ -68,7 +68,10 @@ class BaselineExp:
     def train(self) -> None:
         """ Start training """
         print(f"train using {self.model.device.type}")
+
         callback = [
             WandbCallback(self.args),
+            CheckpointCallback(save_freq=1000, save_path='./logs/',
+                                                name_prefix='rl_model')
         ]
         self.model.learn(self.args.total_timesteps, callback=callback)

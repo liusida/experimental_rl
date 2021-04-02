@@ -1,5 +1,5 @@
 from typing import *
-import datetime
+import datetime, os
 from collections import defaultdict
 
 import wandb
@@ -46,6 +46,7 @@ class WandbCallback(EventCallback):
         super().__init__()
         self.args = args
         self.log_interval = 1000
+        self.model_save_interval = 10000
 
         self.last_time_length = defaultdict(lambda: 0)
         self.last_distance_x = defaultdict(lambda: 0)
@@ -107,6 +108,12 @@ class WandbCallback(EventCallback):
             'network/values': self.locals['values'].detach().mean().cpu().numpy(),
             'step': self.num_timesteps,
         })
+
+    def save_model(self):
+        if self.n_calls % self.model_save_interval == 0:
+            filename = f"model_at_{self.num_timesteps}_steps"
+            self.model.save(os.path.join(wandb.run.dir, filename))
+            wandb.save(filename)
 
     def _on_step(self):
         self.episodic_log()
