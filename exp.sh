@@ -4,7 +4,7 @@ set -x
 # 2021-04-02
 if true
 then
-    exp_name="FirstTry"
+    exp_name="FirstTryAgain"
     for seed in 0 1 2
     do
         sbatch -J $exp_name deepgreen.sh python run.py --env_id=HopperBulletEnv-v0 --extractor=MyFlattenExtractor --total_timesteps=2e6 --seed=$seed --exp_name=$exp_name

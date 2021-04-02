@@ -1,3 +1,4 @@
+import subprocess
 import argparse
 import erl
 
@@ -13,5 +14,7 @@ parser.add_argument("--extractor", type=str, default="TwoMlpExtractor", help="Sp
 parser.add_argument("--env_id", type=str, default="HopperBulletEnv-v0", help="Specify different environment. The secondary treatment of the experiment.")
 
 args = parser.parse_args()
+
+args.commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"])
 
 erl.run_current_exp(args)

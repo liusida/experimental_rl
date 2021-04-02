@@ -8,9 +8,11 @@ import socket
 from stable_baselines3.common import logger
 from stable_baselines3.common.callbacks import BaseCallback, EventCallback
 
+
 class WeightsAndBiasesOutputFormat(logger.KVWriter):
     project = "ERL"
     enabled = True
+
     def __init__(self, args={}) -> None:
         """
         Dumps key/value pairs onto Weights and Biases.
@@ -26,9 +28,13 @@ class WeightsAndBiasesOutputFormat(logger.KVWriter):
             current_hostname = "DeepGreen"
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         wandb.init(project=f"{self.project}[{current_hostname}]", config=vars(args), tags=[current_date, args.exp_name, args.extractor, args.env_id])
+        wandb.run.name = f"{args.extractor}-{args.seed}"
+        wandb.save()
+
     def write(self, key_values: Dict[str, Any], key_excluded: Dict[str, Union[str, Tuple[str, ...]]], step: int = 0) -> None:
         key_values.update({'step': step})
         wandb.log(key_values)
+
     def close(self):
         pass
 
