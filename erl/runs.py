@@ -9,10 +9,6 @@ from erl.models.simple import SimpleNet
 from erl.models.twolayers import TwoLayerNet
 from erl.models.vae import VanillaVAE
 
-from stable_baselines3.common.logger import WeightsAndBiasesOutputFormat
-WeightsAndBiasesOutputFormat.enabled = True
-WeightsAndBiasesOutputFormat.project = "ERL"
-
 def run_current_exp(args):
     run_cs287_baseline(args)
 
@@ -51,6 +47,6 @@ def run_cs287_baseline(args):
     args.seed = 0
     # args.render = False
     # args.num_venvs = 16
-    args.total_timesteps = 1e7
-    exp = BaselineExp(args=args)
+    args.total_timesteps = 1e6
+    exp = BaselineExp(env_id="HopperBulletEnv-v0", args=args)
     exp.train()
