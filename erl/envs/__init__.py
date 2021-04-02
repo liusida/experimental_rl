@@ -8,9 +8,9 @@ def register(id, *args, **kvargs):
   else:
     return gym.envs.registration.register(id, *args, **kvargs)
 
-register(id='DefaultEnv-v0',
-         entry_point='erl.envs.default_envs:DefaultEnv',
-         max_episode_steps=1000)
+# register(id='DefaultEnv-v0',
+#          entry_point='erl.envs.default_envs:DefaultEnv',
+#          max_episode_steps=1000)
 
 register(id='Walker2DwithVisionEnv-v0',
          entry_point='erl.envs.walker2d_with_vision:Walker2DWithVisionEnv',
