@@ -1,5 +1,5 @@
 from typing import *
-import datetime, os
+import datetime, os, copy
 from collections import defaultdict
 
 import wandb
@@ -111,11 +111,17 @@ class WandbCallback(EventCallback):
 
     def save_model(self):
         if self.n_calls % self.model_save_interval == 0:
-            filename = f"model_at_{self.num_timesteps}_steps"
-            self.model.save(os.path.join(wandb.run.dir, filename))
+            filename = f"checkpoints/model_at_{self.num_timesteps}_steps.zip"
+            policy_filename = f"checkpoints/policy_at_{self.num_timesteps}_steps.h5"
+            _model = copy.copy(self.model)
+            _model.experiment = None
+            _model.save(os.path.join(wandb.run.dir, filename))
+            _model.policy.save(os.path.join(wandb.run.dir, policy_filename))
             wandb.save(filename)
+            wandb.save(policy_filename)
 
     def _on_step(self):
         self.episodic_log()
         self.detailed_log()
+        self.save_model()
         return True

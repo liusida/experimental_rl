@@ -71,7 +71,5 @@ class BaselineExp:
 
         callback = [
             WandbCallback(self.args),
-            CheckpointCallback(save_freq=1000, save_path='./logs/',
-                                                name_prefix='rl_model')
         ]
         self.model.learn(self.args.total_timesteps, callback=callback)

@@ -4,7 +4,7 @@ set -x
 # 2021-04-02
 if true
 then
-    exp_name="TestMultiMlps"
+    exp_name="TestMultiMlpsAgain"
     for seed in 0 1 2
     do
         for m in 1 2 4 8 16
