@@ -19,10 +19,15 @@ def get(classname):
     
     Note: The value of arguments should always be integers.
     """
-    classname, str_kwargs = classname.split(":")
+    if classname.find(":")==-1:
+        str_kwargs = ""
+    else:
+        classname, str_kwargs = classname.split(":")
     list_kwargs = str_kwargs.split("&")
     kwargs = {}
     for k in list_kwargs:
+        if k.find("=")==-1:
+            continue
         key, value = k.split("=")
         kwargs[key] = int(value)
     return _extractors[classname], kwargs
