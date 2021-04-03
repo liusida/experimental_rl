@@ -1,9 +1,11 @@
+from stable_baselines3.common.torch_layers import FlattenExtractor
 from .flatten import MyFlattenExtractor
 from .one_mlp import OneMlpExtractor
 from .two_mlp import TwoMlpExtractor
 from .multi_mlp import MultiMlpExtractor
 
 _extractors = {
+    "FlattenExtractor": FlattenExtractor,
     "MyFlattenExtractor": MyFlattenExtractor,
     "OneMlpExtractor": OneMlpExtractor,
     "TwoMlpExtractor": TwoMlpExtractor,

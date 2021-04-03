@@ -11,9 +11,9 @@ class MultiMlpExtractor(BaseFeaturesExtractor):
     """
     def __init__(self, observation_space: gym.Space, m=4):
         self.num_parallel_mlps = m
-        super().__init__(observation_space, 64*self.num_parallel_mlps)
-        
         n_input = gym.spaces.utils.flatdim(observation_space)
+        super().__init__(observation_space, n_input+64*self.num_parallel_mlps)
+        
         self.flatten = nn.Flatten()
 
         self.mlps = nn.ModuleList()
@@ -30,7 +30,7 @@ class MultiMlpExtractor(BaseFeaturesExtractor):
         x = self.flatten(observations)
 
         # branch
-        xs = []
+        xs = [x]
         for modules in self.mlps:
             xs.append(modules(x))
         
