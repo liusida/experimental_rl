@@ -61,6 +61,7 @@ class BaselineExp:
             "features_extractor_class": features_extractor_class,
             "features_extractor_kwargs": features_extractor_kwargs
         }
+        architecture = [dict(pi=[64, 64], vf=[64, 64])]
         self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
