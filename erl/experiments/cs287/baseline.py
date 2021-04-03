@@ -60,6 +60,8 @@ class BaselineExp:
         policy_kwargs = {
             "features_extractor_class": features_extractor_class,
             "features_extractor_kwargs": features_extractor_kwargs,
+            # Note: net_arch must be specified, because sb3 won't set the default network architecture if we change the features_extractor.
+            # pi: Actor (policy-function); vf: Critic (value-function)
             "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
         
