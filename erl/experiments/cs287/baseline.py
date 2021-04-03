@@ -59,9 +59,10 @@ class BaselineExp:
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
         policy_kwargs = {
             "features_extractor_class": features_extractor_class,
-            "features_extractor_kwargs": features_extractor_kwargs
+            "features_extractor_kwargs": features_extractor_kwargs,
+            "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
-        architecture = [dict(pi=[64, 64], vf=[64, 64])]
+        
         self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
