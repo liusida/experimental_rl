@@ -46,3 +46,20 @@ spack load cuda
 # run
 python run.py
 ```
+
+## GitHub working flow
+
+```
+# Starting a new task
+git checkout -b developing
+git push --set-upstream origin developing
+# Do the work with auto-commit (add a preLaunchTask and a short hand command `cmp`)
+git cmp "auto-save"
+# Done. Tested.
+# pull a request.
+gh pr create --title "update description" --body ""
+# merge to master
+gh pr merge developing --body "update description" --squash --delete-branch
+# update local version
+git pull
+```
