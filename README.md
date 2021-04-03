@@ -57,9 +57,9 @@ git push --set-upstream origin developing
 git cmp "auto-save"
 # Done. Tested.
 # pull a request.
-gh pr create --body "" --title "auto pull request"
+gh pr create --title "update description" --body ""
 # merge to master
-gh pr merge developing --squash --delete-branch --body "update description"
+gh pr merge developing --body "update description" --squash --delete-branch
 # update local version
 git pull
 ```
