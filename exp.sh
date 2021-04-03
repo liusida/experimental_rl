@@ -1,6 +1,8 @@
 #!/bin/sh
 set -x
 
+git pull
+
 # 2021-04-03
 if true
 then
