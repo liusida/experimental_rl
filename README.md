@@ -1,16 +1,28 @@
 # ERL
 
-![screenshot](images/humanoid_with_camera.png)
+![screenshot](images/walker2d_with_camera.png)
 
 Plan:
 
-VAEs + RNNs + RL
+Two environment:
 
-# Progress
+(1) Hopper
+
+(2) Walker2D with Camera
+
+Three features extractors:
+
+(1) simple flatten (baseline), 
+
+(2) multiple parallel mlp modules, 
+
+(3) multiple parallel rnn modules.
+
+<!-- # Progress
 
 Save 10k camera images during RL training, train a VAE to reconstruct them.
 
-![VAE reconstructs camera image](images/vae_reconstructions.png)
+![VAE reconstructs camera image](images/vae_reconstructions.png) -->
 
 ## Useful commands
 
@@ -47,7 +59,7 @@ spack load cuda
 python run.py
 ```
 
-## GitHub working flow
+<!-- ## GitHub working flow
 
 ```
 # Starting a new task
@@ -62,4 +74,4 @@ gh pr create --title "update description" --body ""
 gh pr merge developing --body "update description" --squash --delete-branch
 # update local version
 git pull
-```
+``` -->
