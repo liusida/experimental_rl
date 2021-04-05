@@ -40,8 +40,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx.append(th.randn(4, self.size_per_module))
-            self.cx.append(th.randn(4, self.size_per_module))
+            self.hx.append(th.randn(4, self.size_per_module).to(self.device))
+            self.cx.append(th.randn(4, self.size_per_module).to(self.device))
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
