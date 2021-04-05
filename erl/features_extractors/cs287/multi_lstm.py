@@ -38,14 +38,17 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-        
+            self.hx.append(th.randn(4, self.size_per_module))
+            self.cx.append(th.randn(4, self.size_per_module))
+
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
 
         # branch
         xs = [x]
-        for modules in self.ensembled_modules:
-            xs.append(modules(x))
+        for i, modules in enumerate(self.ensembled_modules):
+            self.hx[i], self.cx[i] = modules(x, (self.hx[i], self.cx[i]))
+            xs.append(self.hx[i])
         
         # concatenate
         x = th.cat(xs, dim=1)
