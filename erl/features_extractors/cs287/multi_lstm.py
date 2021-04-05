@@ -14,6 +14,11 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
            + LSTM_2 +
            + LSTM_3 +
            + LSTM_4 +
+
+    RNN needs the back-propagation through time, and it breaks the i.i.d. assumption, so many things need to be done.
+    It is not supported in sb3.
+
+    First tutorial of LSTM in pytorch (without the RL setting): https://pytorch.org/tutorials/beginner/nlp/sequence_models_tutorial.html
     """
     def __init__(self, observation_space: gym.Space, m=4):
         """
