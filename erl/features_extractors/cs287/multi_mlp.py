@@ -7,12 +7,23 @@ from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, Flatten
 
 class MultiMlpExtractor(BaseFeaturesExtractor):
     """
-    treatment group: one mlp module, with hidden layers [64,64,64]
+    Multiple Multi-Layer Perceptrons Features Extractor
     """
     def __init__(self, observation_space: gym.Space, m=4):
+        """
+        m: number of parallel mlps, need to be power of 2.
+        The final result will always be of size 64 plus the original input size `n_input`.
+        """
+        self.final_layer_size = 64 # without n_input
+        # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
+        assert (m & (m-1) == 0) and m != 0, "m is not power of 2"
+        assert m<=self.final_layer_size, "m is too large"
+
         self.num_parallel_mlps = m
+        self.size_per_mlps = int(self.final_layer_size / self.num_parallel_mlps) # this is why we need m to be power of 2
+
         n_input = gym.spaces.utils.flatdim(observation_space)
-        super().__init__(observation_space, n_input+64*self.num_parallel_mlps)
+        super().__init__(observation_space, n_input+self.final_layer_size)
         
         self.flatten = nn.Flatten()
 
@@ -22,7 +33,7 @@ class MultiMlpExtractor(BaseFeaturesExtractor):
                 nn.Sequential(
                     nn.Linear(n_input, 64),
                     nn.Linear(64, 64),
-                    nn.Linear(64, 64)
+                    nn.Linear(64, self.size_per_mlps)
                 )
             )
         
@@ -36,4 +47,5 @@ class MultiMlpExtractor(BaseFeaturesExtractor):
         
         # concatenate
         x = th.cat(xs, dim=1)
+
         return x
