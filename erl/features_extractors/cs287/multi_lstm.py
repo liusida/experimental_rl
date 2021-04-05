@@ -5,15 +5,15 @@ from torch.nn import functional as F
 
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, FlattenExtractor
 
-class MultiMlpExtractor(BaseFeaturesExtractor):
+class MultiLSTMExtractor(BaseFeaturesExtractor):
     """
-    Parallel Multiple Multi-Layer Perceptrons Features Extractor
-    input -+-------+--> output
-           |       |
-           + Mlp_1 +
-           + Mlp_2 +
-           + Mlp_3 +
-           + Mlp_4 +
+    Parallel Multiple LSTM Features Extractor
+    input -+--------+--> output
+           |        |
+           + LSTM_1 +
+           + LSTM_2 +
+           + LSTM_3 +
+           + LSTM_4 +
     """
     def __init__(self, observation_space: gym.Space, m=4):
         """
@@ -25,22 +25,18 @@ class MultiMlpExtractor(BaseFeaturesExtractor):
         assert (m & (m-1) == 0) and m != 0, "m is not power of 2"
         assert m<=self.final_layer_size, "m is too large"
 
-        self.num_parallel_mlps = m
-        self.size_per_mlps = int(self.final_layer_size / self.num_parallel_mlps) # this is why we need m to be power of 2
+        self.num_parallel_module = m
+        self.size_per_module = int(self.final_layer_size / self.num_parallel_module) # this is why we need m to be power of 2
 
         n_input = gym.spaces.utils.flatdim(observation_space)
         super().__init__(observation_space, n_input+self.final_layer_size)
         
         self.flatten = nn.Flatten()
 
-        self.mlps = nn.ModuleList()
-        for i in range(self.num_parallel_mlps):
-            self.mlps.append(
-                nn.Sequential(
-                    nn.Linear(n_input, 64),
-                    nn.Linear(64, 64),
-                    nn.Linear(64, self.size_per_mlps)
-                )
+        self.lstms = nn.ModuleList()
+        for i in range(self.num_parallel_module):
+            self.lstms.append(
+                nn.LSTM(input_size=n_input, hidden_size=self.size_per_module, num_layers=1),
             )
         
     def forward(self, observations: th.Tensor) -> th.Tensor:
