@@ -34,6 +34,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.flatten = nn.Flatten()
 
         self.ensembled_modules = nn.ModuleList()
+        self.hx, self.cx = [], []
+
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
