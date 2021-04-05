@@ -68,6 +68,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         """ Override the methods like .to(device), .float(), .cuda(), .cpu(), etc.
         """
         super()._apply(fn)
-        self.hx = [fn(x) for x in self.hx]
-        self.cx = [fn(x) for x in self.cx]
+        self.hx_train = [fn(x) for x in self.hx_train]
+        self.cx_train = [fn(x) for x in self.cx_train]
+        self.hx_test = [fn(x) for x in self.hx_test]
+        self.cx_test = [fn(x) for x in self.cx_test]
         return self
