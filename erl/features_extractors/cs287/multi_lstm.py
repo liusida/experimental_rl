@@ -34,14 +34,17 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.flatten = nn.Flatten()
 
         self.ensembled_modules = nn.ModuleList()
-        self.hx, self.cx = [], []
+        self.hx_train, self.cx_train = [], []
+        self.hx_test, self.cx_test = [], []
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx.append(th.randn(4, self.size_per_module))
-            self.cx.append(th.randn(4, self.size_per_module))
+            self.hx_train.append(th.randn(4, self.size_per_module))
+            self.cx_train.append(th.randn(4, self.size_per_module))
+            self.hx_test.append(th.randn(1, self.size_per_module))
+            self.cx_test.append(th.randn(1, self.size_per_module))
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -49,8 +52,12 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         # branch
         xs = [x]
         for i, modules in enumerate(self.ensembled_modules):
-            self.hx[i], self.cx[i] = modules(x, (self.hx[i], self.cx[i]))
-            xs.append(self.hx[i])
+            if x.shape[0]!=1: #TODO: current plan: 1 env indicates testing, multi envs indicate training.
+                self.hx_train[i], self.cx_train[i] = modules(x, (self.hx_train[i], self.cx_train[i]))
+                xs.append(self.hx_train[i])
+            else:
+                self.hx_test[i], self.cx_test[i] = modules(x, (self.hx_test[i], self.cx_test[i]))
+                xs.append(self.hx_test[i])
         
         # concatenate
         x = th.cat(xs, dim=1)
