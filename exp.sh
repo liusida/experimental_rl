@@ -3,8 +3,23 @@ set -x
 
 git pull
 
-# 2021-04-03
+
+# 2021-04-05
 if true
+then
+    exp_name="SameOutputDim"
+    for seed in 0 1 2
+    do
+        for m in 0 1 2 4 8
+        do
+            sbatch -J $exp_name deepgreen.sh python run.py --env_id=HopperBulletEnv-v0 --extractor=MultiMlpExtractor:m=$m --total_timesteps=2e6 --seed=$seed --exp_name=$exp_name
+            sbatch -J $exp_name deepgreen.sh python run.py --env_id=Walker2DwithVisionEnv-v0 --extractor=MultiMlpExtractor:m=$m --total_timesteps=2e6 --seed=$seed --exp_name=$exp_name
+        done
+    done
+fi
+
+# 2021-04-03
+if false
 then
     exp_name="MultiMlps"
     for seed in 0 1 2
