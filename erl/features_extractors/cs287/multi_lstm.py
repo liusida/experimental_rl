@@ -40,8 +40,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx.append(th.randn(4, self.size_per_module).to(self.device))
-            self.cx.append(th.randn(4, self.size_per_module).to(self.device))
+            self.hx.append(th.randn(4, self.size_per_module))
+            self.cx.append(th.randn(4, self.size_per_module))
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -56,3 +56,11 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         x = th.cat(xs, dim=1)
 
         return x
+
+    def _apply(self, fn):
+        """ Override the methods like .to(device), .float(), .cuda(), .cpu(), etc.
+        """
+        super()._apply(fn)
+        self.hx = [fn(x) for x in self.hx]
+        self.cx = [fn(x) for x in self.cx]
+        return self
