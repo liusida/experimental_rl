@@ -14,12 +14,12 @@ import torch as th
 def run_current_exp(args):
     th.manual_seed(args.seed)
     
-    run_cs287_baseline(args)
+    run_cs253_baseline(args)
 
 
-def run_cs287_baseline(args):
-    from erl.experiments.cs287.baseline import BaselineExp
-    import erl.features_extractors.cs287 as extractors
+def run_cs253_baseline(args):
+    from erl.experiments.cs253.baseline import BaselineExp
+    import erl.features_extractors.cs253 as extractors
 
     extractor, extractor_kwargs = extractors.get(args.extractor)
     
