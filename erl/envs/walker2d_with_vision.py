@@ -33,7 +33,7 @@ class Walker2DWithVision(Walker2D):
 
     def get_camera_image(self):
         """ 
-        Get a RGB image from the camera mounted on the robot's face.
+        Get a RGB image from the camera mounted on the robot's camera lens.
         From an example: https://github.com/bulletphysics/bullet3/issues/1616
         """
         if self.p is None and self.scene._p:
@@ -47,13 +47,13 @@ class Walker2DWithVision(Walker2D):
             self.projection_matrix = self.p.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
             
             # Get Index
-            self.robot_id = self.parts['face'].bodies[0]
-            self.face_id = self.parts['face'].bodyPartIndex
-            # Change the face to white, just to make sure the camera is mounted on the right body part
-            self.p.changeVisualShape(self.robot_id, self.face_id,rgbaColor=[1,1,1,1])
+            self.robot_id = self.parts['camera_lens'].bodies[0]
+            self.camera_lens_id = self.parts['camera_lens'].bodyPartIndex
+            # Change the camera_lens to white, just to make sure the camera is mounted on the right body part
+            self.p.changeVisualShape(self.robot_id, self.camera_lens_id,rgbaColor=[1,1,1,1])
 
 
-        com_p, com_o, _, _, _, _ = self.p.getLinkState(self.robot_id, self.face_id, computeForwardKinematics=True)
+        com_p, com_o, _, _, _, _ = self.p.getLinkState(self.robot_id, self.camera_lens_id, computeForwardKinematics=True)
         rot_matrix = self.p.getMatrixFromQuaternion(com_o)
         rot_matrix = np.array(rot_matrix).reshape(3, 3)
         # Initial vectors

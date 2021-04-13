@@ -12,9 +12,11 @@
       <joint armature="0" axis="0 0 1" damping="0" limited="false" name="ignorez" pos="0 0 0" ref="1.25" stiffness="0" type="slide"/>
       <joint armature="0" axis="0 1 0" damping="0" limited="false" name="ignorey" pos="0 0 0" stiffness="0" type="hinge"/>
       <geom fromto="0 0 0 0 0 -0.44" name="torso_geom" size="0.04" type="capsule"/>
-      <body name="face" pos="0 0 -0.05">
-        <!-- <joint axis="0 0 1" name="face_joint" pos="0 0 0" range="-20 20" type="hinge"/> -->
-        <geom fromto="0 0 0 0.1 0 0" name="face_geom" size="0.02" type="capsule"/>
+      <body name="camera_lens" pos="0 0 -0.05">
+        <!-- For now, I don't want the camera lens to move. 
+          <joint axis="0 0 1" name="camera_lens_joint" pos="0 0 0" range="-20 20" type="hinge"/>
+        -->
+        <geom fromto="0 0 0 0.1 0 0" name="camera_lens_geom" size="0.02" type="capsule"/>
       </body>
       <body name="arm" pos="0 0 -0.1">
         <joint axis="0 -1 0" name="arm_joint" pos="0 0 0" range="-60 60" type="hinge"/>
