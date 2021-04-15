@@ -13,16 +13,16 @@ parser.add_argument("--cuda", action="store_true", help="use cuda if possible.")
 parser.add_argument("--exp_name", type=str, default="Default", help="Name of the experiment. So we can group them on WandB.")
 
 parser.add_argument("--flatten", action="store_true", help="Whether include flattened input as features")
-parser.add_argument("--num-rnns", default=0, help="Number of RNNs")
-parser.add_argument("--num-mlps", default=0, help="Number of MLPs")
+parser.add_argument("--num_rnns", default=0, help="Number of RNNs")
+parser.add_argument("--num_mlps", default=0, help="Number of MLPs")
 
 parser.add_argument("--env_id", type=str, default="HopperBulletEnv-v0", help="Specify different environment. The secondary treatment of the experiment.")
 
-parser.add_argument("--rollout-n-steps", type=int, default=2048, help="n_steps for CustomizedPPO.__init__()")
+parser.add_argument("--rollout_n_steps", type=int, default=2048, help="n_steps for CustomizedPPO.__init__()")
 parser.add_argument("--eval_freq", type=int, default=10000, help="eval_freq for CustomizedEvalCallback.__init__()")
 
-parser.add_argument("--implementation-check", action="store_true", help="use default implementation, check with flatten version, to make sure the implementation of flatten version is correct.")
-parser.add_argument("--vec-normalize", action="store_true", help="use sb3 VecNormalization to improve performance.")
+parser.add_argument("--implementation_check", action="store_true", help="use default implementation, check with flatten version, to make sure the implementation of flatten version is correct.")
+parser.add_argument("--vec_normalize", action="store_true", help="use sb3 VecNormalization to improve performance.")
 args = parser.parse_args()
 
 args.commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"])
