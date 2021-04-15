@@ -23,7 +23,7 @@ import wandb
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from erl.customized_agents.customized_callback import CustomizedEvalCallback
 
-class MultiRNNExp:
+class MultiModuleExp:
     """ 
     A whole experiment.
     It should contain: (1) environments, (2) policies, (3) training, (4) testing.
