@@ -75,4 +75,5 @@ class MultiRNNExp:
                 verbose=0,
             )
         ]
-        self.model.learn(self.args.total_timesteps, callback=callback)
+        with torch.autograd.set_detect_anomaly(True):
+            self.model.learn(self.args.total_timesteps, callback=callback)
