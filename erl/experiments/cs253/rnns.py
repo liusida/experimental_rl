@@ -38,6 +38,7 @@ class MultiRNNExp:
                  features_extractor_class=FlattenExtractor,
                  features_extractor_kwargs={},
                  ) -> None:
+        print("Starting MultiRNNExp")
         """ Init with parameters to control the training process """
         self.args = args
         self.env_id = env_id
