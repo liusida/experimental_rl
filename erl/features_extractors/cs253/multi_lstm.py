@@ -60,15 +60,13 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
 
         # TODO: 64 is the training batch size
         # need to be arrays so we don't partially modify the tensors
-        self.hx_manual = []
-        self.cx_manual = []
+        self.hx_manual = [None] * self.num_parallel_module
+        self.cx_manual = [None] * self.num_parallel_module
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx_manual.append(th.randn(64, self.size_per_module))
-            self.cx_manual.append(th.randn(64, self.size_per_module))
 
     @contextmanager
     def start_training(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
