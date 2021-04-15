@@ -12,7 +12,6 @@ from torchvision import transforms
 from stable_baselines3 import PPO
 from stable_baselines3.common import logger
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3.common.callbacks import BaseCallback, EventCallback, EvalCallback
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
@@ -21,7 +20,7 @@ from erl.tools.gym_helper import make_env
 import wandb
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
-
+from erl.customized_agents.customized_callback import CustomizedEvalCallback
 class MultiRNNExp:
     """ 
     A whole experiment.
@@ -67,7 +66,7 @@ class MultiRNNExp:
 
         callback = [
             WandbCallback(self.args),
-            EvalCallback(
+            CustomizedEvalCallback(
                 self.eval_env,
                 best_model_save_path=None,
                 log_path=None,
