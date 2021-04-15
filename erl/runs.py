@@ -12,6 +12,7 @@ from erl.models.vae import VanillaVAE
 import torch as th
 
 import erl.features_extractors.cs253 as extractors
+from erl.features_extractors.cs253.multi_extractor import MultiExtractor
 
 def run_current_exp(args):
     th.manual_seed(args.seed)
@@ -20,7 +21,8 @@ def run_current_exp(args):
 def run_cs253(args):
     from erl.experiments.cs253.multimodule_exp import MultiModuleExp
     extractor, extractor_kwargs = extractors.get(args.extractor)
-    MultiModuleExp(env_id=args.env_id, features_extractor_class=extractor, features_extractor_kwargs=extractor_kwargs, args=args).train()
+    assert extractor==MultiExtractor
+    MultiModuleExp(env_id=args.env_id, features_extractor_kwargs=extractor_kwargs, args=args).train()
 
 
 # past exp:
