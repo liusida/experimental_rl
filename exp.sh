@@ -3,9 +3,19 @@ set -x
 
 git pull
 
+# 2021-04-14
+if true
+then
+    exp_name="CompareBaselineAndMlpsOnHopper"
+    for seed in 0 1 2
+    do
+        sbatch -J $exp_name deepgreen.sh python run.py --env_id=HopperBulletEnv-v0 --extractor=FlattenExtractor --total_timesteps=2e6 --seed=$seed --exp_name=$exp_name
+        sbatch -J $exp_name deepgreen.sh python run.py --env_id=HopperBulletEnv-v0 --extractor=MultiMlpExtractor:m=2 --total_timesteps=2e6 --seed=$seed --exp_name=$exp_name
+    done
+fi
 
 # 2021-04-05
-if true
+if false
 then
     exp_name="SameOutputDim"
     for seed in 0 1 2
