@@ -17,27 +17,19 @@ from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
 from erl.tools.gym_helper import make_env
+from erl.tools.adjust_camera_callback import AdjustCameraCallback
 
 import wandb
 
 
-
 class BaselineExp:
     """ 
-    A whole experiment.
-    It should contain: (1) environments, (2) policies, (3) training, (4) testing.
-    The results should be able to compare with other experiments.
-
-    Baseline is using the FlattenExtractor.
+    default flatten version, no customization.
     """
 
     def __init__(self,
                  args,
-                 env_id="Walker2DwithVisionEnv-v0",
-                 algorithm=PPO,
-                 policy="MlpPolicy",
-                 features_extractor_class=FlattenExtractor,
-                 features_extractor_kwargs={},
+                 env_id="HopperBulletEnv-v0",
                  ) -> None:
         """ Init with parameters to control the training process """
         self.args = args
@@ -48,15 +40,8 @@ class BaselineExp:
         # Make Environments
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
-        policy_kwargs = {
-            "features_extractor_class": features_extractor_class,
-            "features_extractor_kwargs": features_extractor_kwargs,
-            # Note: net_arch must be specified, because sb3 won't set the default network architecture if we change the features_extractor.
-            # pi: Actor (policy-function); vf: Critic (value-function)
-            "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
-        }
-        
-        self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
+       
+        self.model = PPO("MlpPolicy", venv, tensorboard_log="tb", device=self.device)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
         self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
@@ -66,12 +51,13 @@ class BaselineExp:
         print(f"train using {self.model.device.type}")
 
         callback = [
+            AdjustCameraCallback(),
             WandbCallback(self.args),
             EvalCallback(
                 self.eval_env,
                 best_model_save_path=None,
                 log_path=None,
-                eval_freq=2000,
+                eval_freq=self.args.eval_freq,
                 n_eval_episodes=3,
                 verbose=0,
             )
