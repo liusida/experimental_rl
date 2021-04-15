@@ -8,21 +8,9 @@ def run_current_exp(args):
     run_cs253(args)
 
 def run_cs253(args):
-    extractor_kwargs = get_kwargs(args.extractor_kwargs)
+    extractor_kwargs = {
+        "flatten": args.flatten,
+        "num_rnns": args.num_rnns,
+        "num_mlps": args.num_mlps,
+    }
     MultiModuleExp(env_id=args.env_id, features_extractor_kwargs=extractor_kwargs, args=args).train()
-
-def get_kwargs(str_kwargs):
-    """ Get class and kwargs from a string of classname
-    For example a classname can be: "SomeClass:i=1&j=2"
-    and we should return the class of SomeClass, and a dictionary of {"i":1, "j":2}
-    
-    Note: The value of arguments should always be integers.
-    """
-    list_kwargs = str_kwargs.split(",")
-    kwargs = {}
-    for k in list_kwargs:
-        if k.find("=")==-1:
-            continue
-        key, value = k.split("=")
-        kwargs[key] = int(value)
-    return kwargs

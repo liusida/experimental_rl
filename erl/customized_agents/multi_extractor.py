@@ -26,7 +26,7 @@ class MultiExtractor(BaseFeaturesExtractor):
     RNN is not supported in sb3 yet.
     """
 
-    def __init__(self, observation_space: gym.Space, num_envs=2, f=1,r=2,m=2):
+    def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2):
         """
         modules: a string from command line arguments, so that we can specify what modules we want to use in command line.
                  f: flatten input (0 no, 1 yes)
@@ -37,15 +37,15 @@ class MultiExtractor(BaseFeaturesExtractor):
         """
         self.current_status = ModuleStatus.ROLLOUT # possible values 0: rollout, 1: training, 2: testing. keep 0 by default.
         self.num_envs = num_envs
-        self.include_input = f      # f: flatten input (0 no, 1 yes)
-        self.num_parallel_mlps = m  # r: number of rnn modules (integer)
-        self.num_parallel_rnns = r  # m: number of mlp modules (integer)
-        self.num_parallel_sum = m+r
+        self.include_input = flatten      # f: flatten input (0 no, 1 yes)
+        self.num_parallel_mlps = num_mlps  # r: number of rnn modules (integer)
+        self.num_parallel_rnns = num_rnns  # m: number of mlp modules (integer)
+        self.num_parallel_sum = num_mlps+num_rnns
         
         self.final_layer_size = 64  # without n_input
         # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
-        assert (self.num_parallel_sum & (self.num_parallel_sum-1) == 0) and self.num_parallel_sum != 0, "r+m is not power of 2"
-        assert self.num_parallel_sum <= self.final_layer_size, "r+m is too large"
+        assert (self.num_parallel_sum & (self.num_parallel_sum-1) == 0) and self.num_parallel_sum != 0, "num_parallel_sum is not power of 2"
+        assert self.num_parallel_sum <= self.final_layer_size, "num_parallel_sum is too large"
 
         self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
 
