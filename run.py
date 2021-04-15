@@ -12,7 +12,6 @@ parser.add_argument("--seed", type=int, default=0)
 parser.add_argument("--cuda", action="store_true", help="use cuda if possible.")
 
 parser.add_argument("--exp_name", type=str, default="Default", help="Name of the experiment. So we can group them on WandB.")
-parser.add_argument("--exp_group", type=str, default="baseline", help="could be (1) baseline, (2) mlps, (3) rnns, (4) mlprnn")
 parser.add_argument("--extractor", type=str, default="MultiMlpExtractor:m=4", help="Specify different extractor. The main treatment of the experiment.")
 parser.add_argument("--env_id", type=str, default="HopperBulletEnv-v0", help="Specify different environment. The secondary treatment of the experiment.")
 

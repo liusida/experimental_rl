@@ -11,18 +11,19 @@ from erl.models.vae import VanillaVAE
 
 import torch as th
 
+import erl.features_extractors.cs253 as extractors
+
 def run_current_exp(args):
     th.manual_seed(args.seed)
-    
-    if args.exp_group == "baseline":
-        run_cs253_baseline(args)
-    elif args.exp_group == "mlps":
-        run_cs253_mlps(args)
-    elif args.exp_group == "rnns":
-        run_cs253_rnns(args)
-    else:
-        raise NotImplementedError
+    run_cs253(args)
 
+def run_cs253(args):
+    from erl.experiments.cs253.multimodule_exp import MultiModuleExp
+    extractor, extractor_kwargs = extractors.get(args.extractor)
+    MultiModuleExp(env_id=args.env_id, features_extractor_class=extractor, features_extractor_kwargs=extractor_kwargs, args=args).train()
+
+
+# past exp:
 def run_cs253_baseline(args):
     from erl.experiments.cs253.baseline import BaselineExp
     import erl.features_extractors.cs253 as extractors
@@ -39,12 +40,10 @@ def run_cs253_mlps(args):
 
 def run_cs253_rnns(args):
     from erl.experiments.cs253.rnns import MultiRNNExp
-    import erl.features_extractors.cs253 as extractors
     assert args.extractor.startswith("MultiLSTMExtractor")
     extractor, extractor_kwargs = extractors.get(args.extractor)
     exp = MultiRNNExp(env_id=args.env_id, features_extractor_class=extractor, features_extractor_kwargs=extractor_kwargs, args=args)
     exp.train()
-
 
 
 def run(args):

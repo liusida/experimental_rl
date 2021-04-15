@@ -4,6 +4,7 @@ from .one_mlp import OneMlpExtractor
 from .two_mlp import TwoMlpExtractor
 from .multi_mlp import MultiMlpExtractor
 from .multi_lstm import MultiLSTMExtractor
+from .multi_extractor import MultiExtractor
 
 _extractors = {
     "FlattenExtractor": FlattenExtractor,
@@ -12,6 +13,7 @@ _extractors = {
     "TwoMlpExtractor": TwoMlpExtractor,
     "MultiMlpExtractor": MultiMlpExtractor,
     "MultiLSTMExtractor": MultiLSTMExtractor,
+    "MultiExtractor": MultiExtractor,
 }
 
 def get(classname):
