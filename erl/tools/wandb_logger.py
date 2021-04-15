@@ -162,6 +162,8 @@ class WandbCallback(EventCallback):
             wandb.log({"images/screenshots": [wandb.Image(camera_img)]})
 
     def _on_step(self):
+        if wandb.run.dir=='/': # wandb disabled
+            return
         self.episodic_log()
         self.detailed_log()
         self.save_model()
