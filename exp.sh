@@ -15,7 +15,7 @@ fi
 
 
 # 2021-04-14
-if true
+if false
 then
     exp_name="ImplementingRNN"
     for seed in 0 1 2
