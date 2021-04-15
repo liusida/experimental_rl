@@ -21,5 +21,5 @@ def run_default(args):
     For comparing to flatten group, to verify the implementation"""
     from erl.experiments.cs253.baseline import BaselineExp
     from stable_baselines3.common.torch_layers import FlattenExtractor
-    exp = BaselineExp(env_id=args.env_id, features_extractor_class=FlattenExtractor, args=args)
+    exp = BaselineExp(env_id=args.env_id, args=args)
     exp.train()
