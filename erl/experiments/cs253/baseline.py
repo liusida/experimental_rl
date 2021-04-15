@@ -26,7 +26,7 @@ class BaselineExp:
         # Make Environments
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
-        self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
+        self.eval_env = DummyVecEnv([make_env(env_id=env_id, rank=99, seed=args.seed, render=False)])
         if args.vec_normalize:
             venv = VecNormalize(venv)
             self.eval_env = VecNormalize(self.eval_env, norm_reward=False)
