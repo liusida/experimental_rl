@@ -16,7 +16,9 @@ Three features extractors:
 
 (2) multiple parallel mlp modules, 
 
-(3) multiple parallel rnn modules.
+(3) multiple parallel rnn modules,
+
+(4) multiple parallel mlp and rnn modules.
 
 <!-- # Progress
 

@@ -16,28 +16,19 @@ from stable_baselines3.common.callbacks import BaseCallback, EventCallback, Eval
 from stable_baselines3.common.torch_layers import FlattenExtractor
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
+from erl.tools.gym_helper import make_env
 
 import wandb
 
 
-def make_env(env_id, rank, seed, render, render_index=0):
-    def _init():
-        # only render one environment
-        _render = render and rank in [render_index]
-
-        env = gym.make(env_id, render=_render)
-
-        assert rank < 100, "seed * 100 + rank is assuming rank <100"
-        env.seed(seed*100 + rank)
-
-        return env
-    return _init
-
 
 class BaselineExp:
-    """ One experiment is a treatment group or a control group.
+    """ 
+    A whole experiment.
     It should contain: (1) environments, (2) policies, (3) training, (4) testing.
     The results should be able to compare with other experiments.
+
+    Baseline is using the FlattenExtractor.
     """
 
     def __init__(self,
