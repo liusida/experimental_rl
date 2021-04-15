@@ -20,19 +20,17 @@ from stable_baselines3.common.buffers import RolloutBuffer
 
 
 class CustomizedRolloutBuffer(RolloutBuffer):
-    def __init__(self, num_parallel_module: int, buffer_size: int, observation_space: spaces.Space, action_space: spaces.Space, device: Union[th.device, str], gae_lambda: float, gamma: float, n_envs: int):
-        self.num_parallel_module = num_parallel_module
+    def __init__(self, rnn_num_parallel_module: int, rnn_size_per_module: int, buffer_size: int, observation_space: spaces.Space, action_space: spaces.Space, device: Union[th.device, str], gae_lambda: float, gamma: float, n_envs: int):
+        self.rnn_num_parallel_module = rnn_num_parallel_module
+        self.rnn_size_per_module = rnn_size_per_module
+
         super().__init__(buffer_size, observation_space, action_space, device=device, gae_lambda=gae_lambda, gamma=gamma, n_envs=n_envs)
     def reset(self) -> None:
         """
         reset short and long states, and call super
         """
-        # TODO: dynamically set hidden_dim from settings somewhere
-        # TODO: number of rnn modules = 4
-        self.hidden_dim = 16
-
-        self.short_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.num_parallel_module, self.hidden_dim), dtype=np.float32)
-        self.long_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.num_parallel_module, self.hidden_dim), dtype=np.float32)
+        self.short_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.rnn_num_parallel_module, self.rnn_size_per_module), dtype=np.float32)
+        self.long_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.rnn_num_parallel_module, self.rnn_size_per_module), dtype=np.float32)
         super().reset()
 
     def add(

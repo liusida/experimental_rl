@@ -71,7 +71,9 @@ class CustomizedPPO(PPO):
                          use_sde=use_sde, sde_sample_freq=sde_sample_freq, target_kl=target_kl, tensorboard_log=tensorboard_log, create_eval_env=create_eval_env,
                          policy_kwargs=policy_kwargs, verbose=verbose, seed=seed, device=device, _init_setup_model=_init_setup_model)
         self.rollout_buffer = CustomizedRolloutBuffer(
-            num_parallel_module=self.policy.features_extractor.num_parallel_module,
+            rnn_num_parallel_module=self.policy.features_extractor.num_parallel_module,
+            rnn_size_per_module = self.policy.features_extractor.size_per_module,
+
             buffer_size=self.n_steps,
             observation_space=self.observation_space,
             action_space=self.action_space,
