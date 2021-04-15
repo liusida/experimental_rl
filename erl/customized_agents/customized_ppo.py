@@ -228,8 +228,8 @@ class CustomizedPPO(PPO):
                 """
                 Sida: get memory before passing forward, assuming there's only one rnn module for now.
                 """
-                short_hidden_state = self.policy.features_extractor.cx_rollout[0].cpu().numpy()
-                long_hidden_state = self.policy.features_extractor.hx_rollout[0].cpu().numpy()
+                short_hidden_states = self.policy.features_extractor.cx_rollout.cpu().numpy()
+                long_hidden_states = self.policy.features_extractor.hx_rollout.cpu().numpy()
 
                 actions, values, log_probs = self.policy.forward(obs_tensor)
             actions = actions.cpu().numpy()
@@ -260,7 +260,7 @@ class CustomizedPPO(PPO):
             Sida: add memory to rollout buffer
             """
             rollout_buffer.add(
-                short_hidden_state, long_hidden_state,
+                short_hidden_states, long_hidden_states,
                 self._last_obs, actions, rewards, self._last_dones, values, log_probs)
 
             self._last_obs = new_obs
