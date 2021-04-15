@@ -52,14 +52,12 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         # hx is for long term memory
         # cx is for short term memory
 
-        # TODO: 2 is the number of environments
-        self.hx_rollout = th.zeros(2, self.num_parallel_module, self.size_per_module)
-        self.cx_rollout = th.zeros(2, self.num_parallel_module, self.size_per_module)
+        self.hx_rollout = th.zeros(self.num_envs, self.num_parallel_module, self.size_per_module)
+        self.cx_rollout = th.zeros(self.num_envs, self.num_parallel_module, self.size_per_module)
 
         self.hx_test = th.zeros(1, self.num_parallel_module, self.size_per_module)
         self.cx_test = th.zeros(1, self.num_parallel_module, self.size_per_module)
 
-        # TODO: 64 is the training batch size
         # need to be arrays so we don't partially modify the tensors
         self.hx_manual = [None] * self.num_parallel_module
         self.cx_manual = [None] * self.num_parallel_module
