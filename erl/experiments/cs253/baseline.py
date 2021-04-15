@@ -33,7 +33,6 @@ class BaselineExp:
         
         self.model = PPO("MlpPolicy", venv, tensorboard_log="tb", device=self.device, verbose=1)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
-        
 
     def train(self) -> None:
         """ Start training """

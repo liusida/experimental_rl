@@ -1,6 +1,6 @@
 import torch
 
-from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
 from erl.tools.gym_helper import make_env
@@ -34,6 +34,11 @@ class MultiModuleExp:
         # Make Environments
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
+        self.eval_env = DummyVecEnv([make_env(env_id=env_id, rank=99, seed=args.seed, render=False)])
+        if args.vec_normalize:
+            venv = VecNormalize(venv)
+            self.eval_env = VecNormalize(self.eval_env, norm_reward=False)
+        
         features_extractor_kwargs["num_envs"] = args.num_envs
         policy_kwargs = {
             "features_extractor_class": MultiExtractor,
@@ -46,8 +51,6 @@ class MultiModuleExp:
         self.model = CustomizedPPO("MlpPolicy", venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
-        self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
-
     def train(self) -> None:
         """ Start training """
         print(f"train using {self.model.device.type}")
