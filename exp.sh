@@ -6,7 +6,7 @@ git pull
 # 2021-04-15
 if true
 then
-    exp_name="Good"
+    exp_name="Alpha"
     for seed in 0 1 2 3 4
     do
         common_args=--cuda --exp_name=$exp_name --env_id=HopperBulletEnv-v0 --num_envs=16 --total_timesteps=3e6 --seed=$seed
