@@ -13,6 +13,17 @@ then
     done
 fi
 
+
+# 2021-04-14
+if true
+then
+    exp_name="ImplementingRNN"
+    for seed in 0 1 2
+    do
+        sbatch -J $exp_name bluemoon.sh python run.py --exp_name=$exp_name --exp_group=rnns --env_id=HopperBulletEnv-v0 --extractor=MultiLSTMExtractor:m=1 --num_envs=16 --total_timesteps=3e6 --seed=$seed
+    done
+fi
+
 if false
 then
     exp_name="CompareBaselineAndMlpsOnHopper"
