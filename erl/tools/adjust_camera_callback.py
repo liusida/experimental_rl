@@ -8,6 +8,8 @@ class AdjustCameraCallback(EventCallback):
 
 
     def camera_simpy_follow_robot(self, rotate=True):
+        if not self.model.env.envs[0].env.isRender:
+            return
         p = self.model.env.envs[0].env._p
         robot = self.model.env.envs[0].robot
         if not hasattr(self, "camera_angle"): # lazy init
