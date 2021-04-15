@@ -56,7 +56,7 @@ class MultiRNNExp:
             "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
         
-        self.model = CustomizedPPO(policy, venv, n_steps=10, tensorboard_log="tb", policy_kwargs=policy_kwargs)
+        self.model = CustomizedPPO(policy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
         self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
@@ -71,10 +71,11 @@ class MultiRNNExp:
                 self.eval_env,
                 best_model_save_path=None,
                 log_path=None,
-                eval_freq=10000,
+                eval_freq=self.args.eval_freq,
                 n_eval_episodes=3,
                 verbose=0,
             )
         ]
         with torch.autograd.set_detect_anomaly(True):
             self.model.learn(self.args.total_timesteps, callback=callback)
+

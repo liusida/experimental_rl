@@ -1,3 +1,4 @@
+from collections import defaultdict
 import subprocess
 import argparse
 import erl
@@ -15,6 +16,8 @@ parser.add_argument("--exp_group", type=str, default="baseline", help="could be 
 parser.add_argument("--extractor", type=str, default="MultiMlpExtractor:m=4", help="Specify different extractor. The main treatment of the experiment.")
 parser.add_argument("--env_id", type=str, default="HopperBulletEnv-v0", help="Specify different environment. The secondary treatment of the experiment.")
 
+parser.add_argument("--rollout-n-steps", type=int, default=2048, help="n_steps for CustomizedPPO.__init__()")
+parser.add_argument("--eval_freq", type=int, default=10000, help="eval_freq for CustomizedEvalCallback.__init__()")
 args = parser.parse_args()
 
 args.commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"])
