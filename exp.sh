@@ -9,7 +9,7 @@ then
     exp_name="Alpha"
     for seed in 0 1 2 3 4
     do
-        common_args=--cuda --exp_name=$exp_name --env_id=HopperBulletEnv-v0 --num_envs=16 --total_timesteps=3e6 --seed=$seed
+        common_args="--cuda --exp_name=$exp_name --env_id=HopperBulletEnv-v0 --num_envs=16 --total_timesteps=3e6 --seed=$seed"
         sbatch -J $exp_name deepgreen.sh python run.py $common_args --implementation-check
         sbatch -J $exp_name deepgreen.sh python run.py $common_args --flatten
         sbatch -J $exp_name deepgreen.sh python run.py $common_args --num_rnns=1
