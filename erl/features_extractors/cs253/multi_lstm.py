@@ -66,6 +66,9 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.hx_manual = long_hidden_states
         self.cx_manual = short_hidden_states
 
+        self.hx_manual.requires_grad_(False)
+        self.cx_manual.requires_grad_(False)
+
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
 
