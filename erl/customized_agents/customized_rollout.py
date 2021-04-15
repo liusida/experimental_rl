@@ -42,8 +42,9 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         """
         Sida: add short and long states, and call super.
         """
-        self.short_hidden_states[self.pos] = np.array(short_hidden_state).copy()
-        self.long_hidden_states[self.pos] = np.array(long_hidden_state).copy()
+        if short_hidden_state is not None:
+            self.short_hidden_states[self.pos] = np.array(short_hidden_state).copy()
+            self.long_hidden_states[self.pos] = np.array(long_hidden_state).copy()
 
         super().add(
             obs=obs,

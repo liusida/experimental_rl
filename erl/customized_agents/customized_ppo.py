@@ -220,6 +220,11 @@ class CustomizedPPO(PPO):
 
         callback.on_rollout_start()
 
+        """
+        Sida
+        """
+        short_hidden_states, long_hidden_states = None, None
+
         while n_steps < n_rollout_steps:
             if self.use_sde and self.sde_sample_freq > 0 and n_steps % self.sde_sample_freq == 0:
                 # Sample a new noise matrix
