@@ -40,17 +40,30 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.ensembled_modules = nn.ModuleList()
         # hx is for long term memory
         # cx is for short term memory
-        self.hx_train, self.cx_train = [], []
+        self.hx_rollout, self.cx_rollout = [], []
         self.hx_test, self.cx_test = [], []
+        self.hx_manual, self.cx_manual = [], []
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx_train.append(th.randn(2, self.size_per_module))
-            self.cx_train.append(th.randn(2, self.size_per_module))
+            # TODO: 2 is the number of environments
+            self.hx_rollout.append(th.randn(2, self.size_per_module))
+            self.cx_rollout.append(th.randn(2, self.size_per_module))
+
             self.hx_test.append(th.randn(1, self.size_per_module))
             self.cx_test.append(th.randn(1, self.size_per_module))
+            # TODO: 64 is the training batch size
+            self.hx_manual.append(th.randn(64, self.size_per_module))
+            self.cx_manual.append(th.randn(64, self.size_per_module))
+
+    def manually_set_hidden_state(self, short_hidden_state: th.Tensor, long_hidden_state: th.Tensor) -> None:
+        """
+        Sida: manually set hidden state using states saved in rollout buffer before forward pass during training
+        """
+        self.hx_manual[0] = long_hidden_state
+        self.cx_manual[0] = short_hidden_state
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -58,12 +71,19 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         # branch
         xs = [x]
         for i, modules in enumerate(self.ensembled_modules):
-            if x.shape[0]!=1: #TODO: current plan: 1 env indicates testing, multi envs indicate training.
-                self.hx_train[i], self.cx_train[i] = modules(x, (self.hx_train[i], self.cx_train[i]))
-                xs.append(self.hx_train[i])
-            else:
+            #TODO: 
+            # current plan: 1 env indicates testing, 
+            # 2 envs indicate collecting rollout,
+            # 64 envs indicate training.
+            if x.shape[0]==1:
                 self.hx_test[i], self.cx_test[i] = modules(x, (self.hx_test[i], self.cx_test[i]))
                 xs.append(self.hx_test[i])
+            elif x.shape[0]==2:
+                self.hx_rollout[i], self.cx_rollout[i] = modules(x, (self.hx_rollout[i], self.cx_rollout[i]))
+                xs.append(self.hx_rollout[i])
+            elif x.shape[0]==64:
+                self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
+                xs.append(self.hx_manual[i])
         
         # concatenate
         x = th.cat(xs, dim=1)
@@ -74,8 +94,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         """ Override the methods like .to(device), .float(), .cuda(), .cpu(), etc.
         """
         super()._apply(fn)
-        self.hx_train = [fn(x) for x in self.hx_train]
-        self.cx_train = [fn(x) for x in self.cx_train]
+        self.hx_rollout = [fn(x) for x in self.hx_rollout]
+        self.cx_rollout = [fn(x) for x in self.cx_rollout]
         self.hx_test = [fn(x) for x in self.hx_test]
         self.cx_test = [fn(x) for x in self.cx_test]
         return self
