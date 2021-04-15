@@ -28,8 +28,8 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         # TODO: number of rnn modules = 4
         self.hidden_dim = 16
 
-        self.short_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.hidden_dim), dtype=np.float32)
-        self.long_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.hidden_dim), dtype=np.float32)
+        self.short_hidden_states = np.zeros((self.buffer_size, 4, self.n_envs, self.hidden_dim), dtype=np.float32)
+        self.long_hidden_states = np.zeros((self.buffer_size, 4, self.n_envs, self.hidden_dim), dtype=np.float32)
         super().reset()
 
     def add(
