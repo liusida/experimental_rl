@@ -47,7 +47,8 @@ class MultiExtractor(BaseFeaturesExtractor):
         assert (self.num_parallel_sum & (self.num_parallel_sum-1) == 0) or self.num_parallel_sum == 0, "num_parallel_sum is not power of 2"
         assert self.num_parallel_sum <= self.final_layer_size, "num_parallel_sum is too large"
 
-        self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
+        if self.num_parallel_sum:
+            self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
 
         n_input = gym.spaces.utils.flatdim(observation_space)
         if self.include_input:
@@ -61,21 +62,21 @@ class MultiExtractor(BaseFeaturesExtractor):
         self.ensembled_mlps = nn.ModuleList()
         # hx is for long term memory
         # cx is for short term memory
+        if self.num_parallel_rnns:
+            self.hx_rollout = th.zeros(self.num_envs, self.num_parallel_rnns, self.size_per_module)
+            self.cx_rollout = th.zeros(self.num_envs, self.num_parallel_rnns, self.size_per_module)
 
-        self.hx_rollout = th.zeros(self.num_envs, self.num_parallel_rnns, self.size_per_module)
-        self.cx_rollout = th.zeros(self.num_envs, self.num_parallel_rnns, self.size_per_module)
+            self.hx_test = th.zeros(1, self.num_parallel_rnns, self.size_per_module)
+            self.cx_test = th.zeros(1, self.num_parallel_rnns, self.size_per_module)
 
-        self.hx_test = th.zeros(1, self.num_parallel_rnns, self.size_per_module)
-        self.cx_test = th.zeros(1, self.num_parallel_rnns, self.size_per_module)
+            # need to be arrays so we don't partially modify the tensors
+            self.hx_manual = [None] * self.num_parallel_rnns
+            self.cx_manual = [None] * self.num_parallel_rnns
 
-        # need to be arrays so we don't partially modify the tensors
-        self.hx_manual = [None] * self.num_parallel_rnns
-        self.cx_manual = [None] * self.num_parallel_rnns
-
-        for i in range(self.num_parallel_rnns):
-            self.ensembled_rnns.append(
-                nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
-            )
+            for i in range(self.num_parallel_rnns):
+                self.ensembled_rnns.append(
+                    nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
+                )
 
         for i in range(self.num_parallel_mlps):
             self.ensembled_mlps.append(
