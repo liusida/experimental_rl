@@ -20,21 +20,20 @@ from erl.tools.gym_helper import make_env
 
 import wandb
 
+from erl.customized_agents.customized_ppo import CustomizedPPO
 
-
-class BaselineExp:
+class MultiRNNExp:
     """ 
     A whole experiment.
     It should contain: (1) environments, (2) policies, (3) training, (4) testing.
     The results should be able to compare with other experiments.
 
-    Baseline is using the FlattenExtractor.
+    The Multi-RNN experiment.
     """
 
     def __init__(self,
                  args,
-                 env_id="Walker2DwithVisionEnv-v0",
-                 algorithm=PPO,
+                 env_id="HopperBulletEnv-v0",
                  policy="MlpPolicy",
                  features_extractor_class=FlattenExtractor,
                  features_extractor_kwargs={},
@@ -56,7 +55,7 @@ class BaselineExp:
             "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
         
-        self.model = algorithm(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
+        self.model = CustomizedPPO(policy, venv, tensorboard_log="tb", policy_kwargs=policy_kwargs)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
         self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()

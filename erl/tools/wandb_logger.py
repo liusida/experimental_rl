@@ -26,6 +26,9 @@ class WeightsAndBiasesOutputFormat(logger.KVWriter):
         current_hostname = socket.gethostname()
         if current_hostname.startswith("dg-"):
             current_hostname = "DeepGreen"
+        elif current_hostname.startswith("node") or current_hostname.startswith("shared"):
+            current_hostname = "BlueMoon"
+            
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         wandb.init(project=f"{self.project}[{current_hostname}]", config=vars(args), tags=[current_date, args.exp_name, args.extractor, args.env_id])
         wandb.run.name = f"{args.exp_name}-{args.extractor}-{args.env_id}-{args.seed}"
