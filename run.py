@@ -22,6 +22,7 @@ parser.add_argument("--rollout-n-steps", type=int, default=2048, help="n_steps f
 parser.add_argument("--eval_freq", type=int, default=10000, help="eval_freq for CustomizedEvalCallback.__init__()")
 
 parser.add_argument("--implementation-check", action="store_true", help="use default implementation, check with flatten version, to make sure the implementation of flatten version is correct.")
+parser.add_argument("--vec-normalize", action="store_true", default=True, help="use sb3 VecNormalization to improve performance.")
 args = parser.parse_args()
 
 args.commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"])
