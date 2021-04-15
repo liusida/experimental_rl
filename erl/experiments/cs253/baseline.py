@@ -1,26 +1,12 @@
-from collections import defaultdict
-import time
-# import cv2
-import gym
-
 import torch
-from torch import optim
-from torch import nn
-import torch.nn.functional as F
-from torchvision import transforms
 
 from stable_baselines3 import PPO
-from stable_baselines3.common import logger
-from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
-from stable_baselines3.common.callbacks import BaseCallback, EventCallback, EvalCallback
-from stable_baselines3.common.torch_layers import FlattenExtractor
+from stable_baselines3.common.vec_env import DummyVecEnv
+from stable_baselines3.common.callbacks import EvalCallback
 import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
 from erl.tools.gym_helper import make_env
 from erl.tools.adjust_camera_callback import AdjustCameraCallback
-
-import wandb
-
 
 class BaselineExp:
     """ 

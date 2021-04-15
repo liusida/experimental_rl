@@ -1,19 +1,10 @@
-import warnings
-from abc import ABC, abstractmethod
 from typing import Dict, Generator, Optional, Union, NamedTuple
 
 import numpy as np
 import torch as th
 from gym import spaces
 
-try:
-    # Check memory used by replay buffer when possible
-    import psutil
-except ImportError:
-    psutil = None
-
-from stable_baselines3.common.preprocessing import get_action_dim, get_obs_shape
-from stable_baselines3.common.type_aliases import ReplayBufferSamples, RolloutBufferSamples
+from stable_baselines3.common.type_aliases import RolloutBufferSamples
 from stable_baselines3.common.vec_env import VecNormalize
 
 from stable_baselines3.common.buffers import RolloutBuffer
