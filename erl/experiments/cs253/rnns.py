@@ -71,7 +71,7 @@ class MultiRNNExp:
                 self.eval_env,
                 best_model_save_path=None,
                 log_path=None,
-                eval_freq=2000,
+                eval_freq=10,
                 n_eval_episodes=3,
                 verbose=0,
             )
