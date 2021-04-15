@@ -67,8 +67,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         Sida: manually set hidden state using states saved in rollout buffer before forward pass during training
         """
         for i in range(self.num_parallel_module):
-            self.hx_manual[i] = th.tensor(long_hidden_states[:,i])
-            self.cx_manual[i] = th.tensor(short_hidden_states[:,i])
+            self.hx_manual[i] = long_hidden_states[:,i].detach().clone()
+            self.cx_manual[i] = short_hidden_states[:,i].detach().clone()
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
