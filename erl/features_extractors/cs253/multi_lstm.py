@@ -109,14 +109,14 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             # 2 envs indicate collecting rollout,
             # 64 envs indicate training.
             if self.current_status==ModuleStatus.ROLLOUT:
-                self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
-                xs.append(self.hx_test[:,i])
+                self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
+                xs.append(self.hx_rollout[:,i])
             elif self.current_status==ModuleStatus.TRAINING:
                 self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
                 xs.append(self.hx_manual[i])
             elif self.current_status==ModuleStatus.TESTING:
-                self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
-                xs.append(self.hx_rollout[:,i])
+                self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
+                xs.append(self.hx_test[:,i])
             else:
                 raise NotImplementedError
         # concatenate
