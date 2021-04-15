@@ -44,8 +44,11 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.num_parallel_module = m
         self.size_per_module = int(self.final_layer_size / self.num_parallel_module)  # this is why we need m to be power of 2
 
-        n_input = gym.spaces.utils.flatdim(observation_space) if self.include_input else 0
-        super().__init__(observation_space, n_input+self.final_layer_size)
+        n_input = gym.spaces.utils.flatdim(observation_space)
+        if self.include_input:
+            super().__init__(observation_space, n_input+self.final_layer_size)
+        else:
+            super().__init__(observation_space, self.final_layer_size)
 
         self.flatten = nn.Flatten()
 
@@ -100,7 +103,10 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         x = self.flatten(observations)
 
         # branch
-        xs = [x] if self.include_input else []
+        if self.include_input:
+            xs = [x]
+        else:
+            xs = []
         for i, modules in enumerate(self.ensembled_modules):
             # TODO:
             # current plan: 1 env indicates testing,
