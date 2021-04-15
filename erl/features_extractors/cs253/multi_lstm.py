@@ -51,23 +51,24 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.cx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
 
         # TODO: 64 is the training batch size
-        self.hx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
-        self.cx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
+        # need to be arrays so we don't partially modify the tensors
+        self.hx_manual = []
+        self.cx_manual = []
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
+            self.hx_manual = th.randn(64, self.size_per_module)
+            self.cx_manual = th.randn(64, self.size_per_module)
 
     def manually_set_hidden_state(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
         """
         Sida: manually set hidden state using states saved in rollout buffer before forward pass during training
         """
-        self.hx_manual = long_hidden_states
-        self.cx_manual = short_hidden_states
-
-        self.hx_manual.requires_grad_(False)
-        self.cx_manual.requires_grad_(False)
+        for i in range(self.num_parallel_module):
+            self.hx_manual[i] = th.tensor(long_hidden_states[:,i])
+            self.cx_manual[i] = th.tensor(short_hidden_states[:,i])
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -85,9 +86,9 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             elif x.shape[0] == 2:
                 self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
                 xs.append(self.hx_rollout[:,i])
-            elif x.shape[0] == 64:
-                self.hx_manual[:,i], self.cx_manual[:,i] = modules(x, (self.hx_manual[:,i], self.cx_manual[:,i]))
-                xs.append(self.hx_manual[:,i])
+            elif x.shape[0] == 64: # training
+                self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
+                xs.append(self.hx_manual[i])
 
         # concatenate
         x = th.cat(xs, dim=1)
