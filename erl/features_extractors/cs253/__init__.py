@@ -27,7 +27,7 @@ def get(classname):
         str_kwargs = ""
     else:
         classname, str_kwargs = classname.split(":")
-    list_kwargs = str_kwargs.split("&")
+    list_kwargs = str_kwargs.split(",")
     kwargs = {}
     for k in list_kwargs:
         if k.find("=")==-1:
