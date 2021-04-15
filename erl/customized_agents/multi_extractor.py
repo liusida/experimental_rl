@@ -146,12 +146,13 @@ class MultiExtractor(BaseFeaturesExtractor):
         """ Override the methods like .to(device), .float(), .cuda(), .cpu(), etc.
         """
         super()._apply(fn)
-        self.hx_rollout = fn(self.hx_rollout)
-        self.cx_rollout = fn(self.cx_rollout)
-        self.hx_test = fn(self.hx_test)
-        self.cx_test = fn(self.cx_test)
-        if self.hx_manual[0] is not None:
-            self.hx_manual = [fn(x) for x in self.hx_manual]
-            self.cx_manual = [fn(x) for x in self.cx_manual]
+        if self.num_parallel_rnns:
+            self.hx_rollout = fn(self.hx_rollout)
+            self.cx_rollout = fn(self.cx_rollout)
+            self.hx_test = fn(self.hx_test)
+            self.cx_test = fn(self.cx_test)
+            if self.hx_manual[0] is not None:
+                self.hx_manual = [fn(x) for x in self.hx_manual]
+                self.cx_manual = [fn(x) for x in self.cx_manual]
 
         return self
