@@ -30,7 +30,7 @@ class WeightsAndBiasesOutputFormat(logger.KVWriter):
             current_hostname = "BlueMoon"
             
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
-        wandb.init(project=f"{self.project}[{current_hostname}]", config=vars(args), tags=[current_date, args.exp_name, args.extractor, args.env_id])
+        wandb.init(project=f"{self.project}[{current_hostname}]", config=vars(args), tags=[current_date, args.exp_name, args.env_id])
         wandb.run.name = f"{args.exp_name}-{args.extractor}-{args.env_id}-{args.seed}"
         wandb.save()
 
