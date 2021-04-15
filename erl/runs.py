@@ -12,7 +12,7 @@ from erl.models.vae import VanillaVAE
 import torch as th
 
 import erl.features_extractors.cs253 as extractors
-from erl.features_extractors.cs253.multi_extractor import MultiExtractor
+from erl.customized_agents.multi_extractor import MultiExtractor
 
 def run_current_exp(args):
     th.manual_seed(args.seed)

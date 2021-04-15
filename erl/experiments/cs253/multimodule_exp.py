@@ -22,7 +22,7 @@ import wandb
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from erl.customized_agents.customized_callback import CustomizedEvalCallback
-from erl.features_extractors.cs253.multi_extractor import MultiExtractor
+from erl.customized_agents.multi_extractor import MultiExtractor
 
 class MultiModuleExp:
     """ 
