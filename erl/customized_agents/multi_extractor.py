@@ -45,12 +45,12 @@ class MultiExtractor(BaseFeaturesExtractor):
         # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
         assert (self.num_parallel_sum & (self.num_parallel_sum-1) == 0) or self.num_parallel_sum == 0, "num_parallel_sum is not power of 2"
 
+        self.size_per_module = 0
         self.final_layer_size = 0  # without n_input
         if self.num_parallel_sum:
             self.final_layer_size = 64  # without n_input
             self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
         assert self.num_parallel_sum <= self.final_layer_size, "num_parallel_sum is too large"
-        self.size_per_module = 0
 
         n_input = gym.spaces.utils.flatdim(observation_space)
         if self.include_input:
