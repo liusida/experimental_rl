@@ -58,7 +58,7 @@ class MultiRNNExp:
             "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
         
-        self.model = CustomizedPPO(policy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs)
+        self.model = CustomizedPPO(policy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
         self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
