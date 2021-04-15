@@ -45,8 +45,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx_train.append(th.randn(4, self.size_per_module))
-            self.cx_train.append(th.randn(4, self.size_per_module))
+            self.hx_train.append(th.randn(2, self.size_per_module))
+            self.cx_train.append(th.randn(2, self.size_per_module))
             self.hx_test.append(th.randn(1, self.size_per_module))
             self.cx_test.append(th.randn(1, self.size_per_module))
 
