@@ -2,7 +2,7 @@ from stable_baselines3.common.callbacks import EventCallback
 
 class AdjustCameraCallback(EventCallback):
     def _on_step(self) -> bool:
-        self.camera_simpy_follow_robot()
+        self.camera_simpy_follow_robot(rotate=False)
         return super()._on_step()
 
 
