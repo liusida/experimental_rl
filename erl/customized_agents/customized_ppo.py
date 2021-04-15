@@ -16,20 +16,34 @@ from stable_baselines3 import PPO
 
 from erl.customized_agents.customized_rollout import CustomizedRolloutBuffer
 
+
 class CustomizedPPO(PPO):
     def __init__(
-            self, policy: Union[str, Type[ActorCriticPolicy]],
-            env: Union[GymEnv, str],
-            learning_rate: Union[float, Schedule],
-            n_steps: int, batch_size: Optional[int],
-            n_epochs: int, gamma: float, gae_lambda: float, clip_range: Union[float, Schedule],
-            clip_range_vf: Union[None, float, Schedule],
-            ent_coef: float, vf_coef: float, max_grad_norm: float, use_sde: bool, sde_sample_freq: int, target_kl: Optional[float],
-            tensorboard_log: Optional[str],
-            create_eval_env: bool, policy_kwargs: Optional[Dict[str, Any]],
-            verbose: int, seed: Optional[int],
-            device: Union[th.device, str],
-            _init_setup_model: bool):
+        self,
+        policy: Union[str, Type[ActorCriticPolicy]],
+        env: Union[GymEnv, str],
+        learning_rate: Union[float, Schedule] = 3e-4,
+        n_steps: int = 2048,
+        batch_size: Optional[int] = 64,
+        n_epochs: int = 10,
+        gamma: float = 0.99,
+        gae_lambda: float = 0.95,
+        clip_range: Union[float, Schedule] = 0.2,
+        clip_range_vf: Union[None, float, Schedule] = None,
+        ent_coef: float = 0.0,
+        vf_coef: float = 0.5,
+        max_grad_norm: float = 0.5,
+        use_sde: bool = False,
+        sde_sample_freq: int = -1,
+        target_kl: Optional[float] = None,
+        tensorboard_log: Optional[str] = None,
+        create_eval_env: bool = False,
+        policy_kwargs: Optional[Dict[str, Any]] = None,
+        verbose: int = 0,
+        seed: Optional[int] = None,
+        device: Union[th.device, str] = "auto",
+        _init_setup_model: bool = True,
+    ):
         """
         Sida: switch to CustomizedRolloutBuffer
         """
@@ -44,7 +58,7 @@ class CustomizedPPO(PPO):
             self.device,
             gamma=self.gamma,
             gae_lambda=self.gae_lambda,
-            n_envs=self.n_envs,        )
+            n_envs=self.n_envs,)
 
     def train(self) -> None:
         """
