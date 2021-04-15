@@ -78,13 +78,13 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             # 64 envs indicate training.
             if x.shape[0] == 1:
                 self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
-                xs.append(self.hx_test[i])
+                xs.append(self.hx_test[:,i])
             elif x.shape[0] == 2:
                 self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
-                xs.append(self.hx_rollout[i])
+                xs.append(self.hx_rollout[:,i])
             elif x.shape[0] == 64:
                 self.hx_manual[:,i], self.cx_manual[:,i] = modules(x, (self.hx_manual[:,i], self.cx_manual[:,i]))
-                xs.append(self.hx_manual[i])
+                xs.append(self.hx_manual[:,i])
 
         # concatenate
         x = th.cat(xs, dim=1)
