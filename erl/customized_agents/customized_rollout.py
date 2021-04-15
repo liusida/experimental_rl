@@ -25,6 +25,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         reset short and long states, and call super
         """
         # TODO: dynamically set hidden_dim from settings somewhere
+        # TODO: number of rnn modules = 4
         self.hidden_dim = 16
 
         self.short_hidden_states = np.zeros((self.buffer_size, self.n_envs, self.hidden_dim), dtype=np.float32)

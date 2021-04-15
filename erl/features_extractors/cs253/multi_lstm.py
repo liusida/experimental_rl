@@ -98,4 +98,7 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.cx_rollout = [fn(x) for x in self.cx_rollout]
         self.hx_test = [fn(x) for x in self.hx_test]
         self.cx_test = [fn(x) for x in self.cx_test]
+        self.hx_manual = [fn(x) for x in self.hx_manual]
+        self.cx_manual = [fn(x) for x in self.cx_manual]
+        
         return self
