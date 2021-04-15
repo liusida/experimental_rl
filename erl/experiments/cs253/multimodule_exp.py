@@ -22,7 +22,7 @@ import wandb
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from erl.customized_agents.customized_callback import CustomizedEvalCallback
-from erl.features_extractors.cs253.multi_extractor import MultiLSTMExtractor
+from erl.features_extractors.cs253.multi_extractor import MultiExtractor
 
 class MultiModuleExp:
     """ 
@@ -50,7 +50,7 @@ class MultiModuleExp:
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
         features_extractor_kwargs["num_envs"] = args.num_envs
         policy_kwargs = {
-            "features_extractor_class": MultiLSTMExtractor,
+            "features_extractor_class": MultiExtractor,
             "features_extractor_kwargs": features_extractor_kwargs,
             # Note: net_arch must be specified, because sb3 won't set the default network architecture if we change the features_extractor.
             # pi: Actor (policy-function); vf: Critic (value-function)
