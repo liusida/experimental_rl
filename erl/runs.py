@@ -40,7 +40,8 @@ def run_cs253_mlps(args):
 def run_cs253_rnns(args):
     from erl.experiments.cs253.rnns import MultiRNNExp
     import erl.features_extractors.cs253 as extractors
-    extractor, extractor_kwargs = extractors.get("MultiLSTMExtractor")
+    assert args.extractor.startswith("MultiLSTMExtractor")
+    extractor, extractor_kwargs = extractors.get(args.extractor)
     exp = MultiRNNExp(env_id=args.env_id, features_extractor_class=extractor, features_extractor_kwargs=extractor_kwargs, args=args)
     exp.train()
 
