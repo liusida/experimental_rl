@@ -59,8 +59,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
-            self.hx_manual = th.randn(64, self.size_per_module)
-            self.cx_manual = th.randn(64, self.size_per_module)
+            self.hx_manual.append(th.randn(64, self.size_per_module))
+            self.cx_manual.append(th.randn(64, self.size_per_module))
 
     def manually_set_hidden_state(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
         """
