@@ -44,15 +44,15 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         # cx is for short term memory
 
         # TODO: 2 is the number of environments
-        self.hx_rollout = th.randn(self.num_parallel_module, 2, self.size_per_module)
-        self.cx_rollout = th.randn(self.num_parallel_module, 2, self.size_per_module)
+        self.hx_rollout = th.randn(2, self.num_parallel_module, self.size_per_module)
+        self.cx_rollout = th.randn(2, self.num_parallel_module, self.size_per_module)
 
-        self.hx_test = th.randn(self.num_parallel_module, 1, self.size_per_module)
-        self.cx_test = th.randn(self.num_parallel_module, 1, self.size_per_module)
+        self.hx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
+        self.cx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
 
         # TODO: 64 is the training batch size
-        self.hx_manual = th.randn(self.num_parallel_module, 64, self.size_per_module)
-        self.cx_manual = th.randn(self.num_parallel_module, 64, self.size_per_module)
+        self.hx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
+        self.cx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
@@ -77,13 +77,13 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             # 2 envs indicate collecting rollout,
             # 64 envs indicate training.
             if x.shape[0] == 1:
-                self.hx_test[i], self.cx_test[i] = modules(x, (self.hx_test[i], self.cx_test[i]))
+                self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
                 xs.append(self.hx_test[i])
             elif x.shape[0] == 2:
-                self.hx_rollout[i], self.cx_rollout[i] = modules(x, (self.hx_rollout[i], self.cx_rollout[i]))
+                self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
                 xs.append(self.hx_rollout[i])
             elif x.shape[0] == 64:
-                self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
+                self.hx_manual[:,i], self.cx_manual[:,i] = modules(x, (self.hx_manual[:,i], self.cx_manual[:,i]))
                 xs.append(self.hx_manual[i])
 
         # concatenate

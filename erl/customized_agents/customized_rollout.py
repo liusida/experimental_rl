@@ -28,8 +28,8 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         # TODO: number of rnn modules = 4
         self.hidden_dim = 16
 
-        self.short_hidden_states = np.zeros((self.buffer_size, 4, self.n_envs, self.hidden_dim), dtype=np.float32)
-        self.long_hidden_states = np.zeros((self.buffer_size, 4, self.n_envs, self.hidden_dim), dtype=np.float32)
+        self.short_hidden_states = np.zeros((self.buffer_size, self.n_envs, 4, self.hidden_dim), dtype=np.float32)
+        self.long_hidden_states = np.zeros((self.buffer_size, self.n_envs, 4, self.hidden_dim), dtype=np.float32)
         super().reset()
 
     def add(
@@ -53,17 +53,6 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             log_prob=log_prob,
         )
 
-    @staticmethod
-    def swap_and_flatten(arr: np.ndarray) -> np.ndarray:
-        """
-        Sida: short_hidden_states and long_hidden_states have a shape of 
-        [batch_size, num_module, num_env, hidden_dim]
-        """
-        shape = arr.shape
-        if len(shape) < 3:
-            shape = shape + (1,)
-        return arr.swapaxes(0, 1).reshape(shape[0] * shape[1], *shape[2:])
-
     def get(self, batch_size: Optional[int] = None) -> Generator[RolloutBufferSamples, None, None]:
         assert self.full, ""
         indices = np.random.permutation(self.buffer_size * self.n_envs)
@@ -73,7 +62,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             Sida: add short and long
             """
             for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns", "short_hidden_states", "long_hidden_states"]:
-                self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor])
+                self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor]) # shape need to be [batch_size, num_env, ...something else...]
             self.generator_ready = True
 
         # Return everything, don't create minibatches
