@@ -27,13 +27,14 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
 
     """
 
-    def __init__(self, observation_space: gym.Space, m=2):
+    def __init__(self, observation_space: gym.Space, m=2, num_envs=2):
         """
         m: number of parallel mlps, need to be power of 2.
         The final result will always be of size 64 plus the original input size `n_input`.
         """
         self.current_status = ModuleStatus.ROLLOUT # possible values 0: rollout, 1: training, 2: testing. keep 0 by default.
-
+        self.num_envs = num_envs
+        
         self.final_layer_size = 64  # without n_input
         # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
         assert (m & (m-1) == 0) and m != 0, "m is not power of 2"
@@ -52,11 +53,11 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         # cx is for short term memory
 
         # TODO: 2 is the number of environments
-        self.hx_rollout = th.randn(2, self.num_parallel_module, self.size_per_module)
-        self.cx_rollout = th.randn(2, self.num_parallel_module, self.size_per_module)
+        self.hx_rollout = th.zeros(2, self.num_parallel_module, self.size_per_module)
+        self.cx_rollout = th.zeros(2, self.num_parallel_module, self.size_per_module)
 
-        self.hx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
-        self.cx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
+        self.hx_test = th.zeros(1, self.num_parallel_module, self.size_per_module)
+        self.cx_test = th.zeros(1, self.num_parallel_module, self.size_per_module)
 
         # TODO: 64 is the training batch size
         # need to be arrays so we don't partially modify the tensors

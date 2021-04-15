@@ -47,6 +47,7 @@ class MultiRNNExp:
         # Make Environments
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
+        features_extractor_kwargs["num_envs"] = args.num_envs
         policy_kwargs = {
             "features_extractor_class": features_extractor_class,
             "features_extractor_kwargs": features_extractor_kwargs,
