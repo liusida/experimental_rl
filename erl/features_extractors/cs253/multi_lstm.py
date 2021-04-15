@@ -51,20 +51,24 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.cx_test = th.randn(1, self.num_parallel_module, self.size_per_module)
 
         # TODO: 64 is the training batch size
-        self.hx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
-        self.cx_manual = th.randn(64, self.num_parallel_module, self.size_per_module)
+        # need to be arrays so we don't partially modify the tensors
+        self.hx_manual = []
+        self.cx_manual = []
 
         for i in range(self.num_parallel_module):
             self.ensembled_modules.append(
                 nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
             )
+            self.hx_manual.append(th.randn(64, self.size_per_module))
+            self.cx_manual.append(th.randn(64, self.size_per_module))
 
     def manually_set_hidden_state(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
         """
         Sida: manually set hidden state using states saved in rollout buffer before forward pass during training
         """
-        self.hx_manual = long_hidden_states.detach().clone()
-        self.cx_manual = short_hidden_states.detach().clone()
+        for i in range(self.num_parallel_module):
+            self.hx_manual[i] = long_hidden_states[:,i].detach().clone()
+            self.cx_manual[i] = short_hidden_states[:,i].detach().clone()
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -99,7 +103,7 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.cx_rollout = fn(self.cx_rollout)
         self.hx_test = fn(self.hx_test)
         self.cx_test = fn(self.cx_test)
-        self.hx_manual = fn(self.hx_manual)
-        self.cx_manual = fn(self.cx_manual)
+        self.hx_manual = [fn(x) for x in self.hx_manual]
+        self.cx_manual = [fn(x) for x in self.cx_manual]
 
         return self
