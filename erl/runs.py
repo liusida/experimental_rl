@@ -8,8 +8,7 @@ def run_current_exp(args):
     run_cs253(args)
 
 def run_cs253(args):
-    extractor, extractor_kwargs = get_kwargs(args.extractor_kwargs)
-    assert extractor==MultiExtractor
+    extractor_kwargs = get_kwargs(args.extractor_kwargs)
     MultiModuleExp(env_id=args.env_id, features_extractor_kwargs=extractor_kwargs, args=args).train()
 
 def get_kwargs(str_kwargs):
