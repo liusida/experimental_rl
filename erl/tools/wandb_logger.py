@@ -31,7 +31,7 @@ class WeightsAndBiasesOutputFormat(logger.KVWriter):
             
         current_date = datetime.datetime.now().strftime("%Y-%m-%d")
         wandb.init(project=f"{self.project}[{current_hostname}]", config=vars(args), tags=[current_date, args.exp_name, args.env_id])
-        wandb.run.name = f"{args.exp_name}-{args.extractor}-{args.env_id}-{args.seed}"
+        wandb.run.name = f"{args.exp_name}-{args.extractor_kwargs}-{args.env_id}-{args.seed}"
         wandb.save()
 
     def write(self, key_values: Dict[str, Any], key_excluded: Dict[str, Union[str, Tuple[str, ...]]], step: int = 0) -> None:
