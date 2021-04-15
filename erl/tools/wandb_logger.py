@@ -165,5 +165,5 @@ class WandbCallback(EventCallback):
         self.episodic_log()
         self.detailed_log()
         self.save_model()
-        self.save_camera_img()
+        # self.save_camera_img()
         return True
