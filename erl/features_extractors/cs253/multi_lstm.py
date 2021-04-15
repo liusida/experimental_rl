@@ -89,7 +89,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             elif x.shape[0] == 64: # training
                 self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
                 xs.append(self.hx_manual[i])
-
+            else:
+                raise NotImplementedError
         # concatenate
         x = th.cat(xs, dim=1)
 
