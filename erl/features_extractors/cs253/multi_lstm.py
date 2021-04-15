@@ -27,13 +27,14 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
 
     """
 
-    def __init__(self, observation_space: gym.Space, m=2, num_envs=2):
+    def __init__(self, observation_space: gym.Space, m=2, num_envs=2, include_input=False):
         """
         m: number of parallel mlps, need to be power of 2.
         The final result will always be of size 64 plus the original input size `n_input`.
         """
         self.current_status = ModuleStatus.ROLLOUT # possible values 0: rollout, 1: training, 2: testing. keep 0 by default.
         self.num_envs = num_envs
+        self.include_input = include_input
         
         self.final_layer_size = 64  # without n_input
         # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
@@ -43,7 +44,7 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.num_parallel_module = m
         self.size_per_module = int(self.final_layer_size / self.num_parallel_module)  # this is why we need m to be power of 2
 
-        n_input = gym.spaces.utils.flatdim(observation_space)
+        n_input = gym.spaces.utils.flatdim(observation_space) if self.include_input else 0
         super().__init__(observation_space, n_input+self.final_layer_size)
 
         self.flatten = nn.Flatten()
@@ -99,7 +100,7 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         x = self.flatten(observations)
 
         # branch
-        xs = [x]
+        xs = [x] if self.include_input else []
         for i, modules in enumerate(self.ensembled_modules):
             # TODO:
             # current plan: 1 env indicates testing,
