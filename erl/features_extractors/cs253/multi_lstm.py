@@ -38,6 +38,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         self.flatten = nn.Flatten()
 
         self.ensembled_modules = nn.ModuleList()
+        # hx is for long term memory
+        # cx is for short term memory
         self.hx_train, self.cx_train = [], []
         self.hx_test, self.cx_test = [], []
 

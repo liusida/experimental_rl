@@ -192,7 +192,7 @@ class CustomizedPPO(PPO):
             logger.record("train/clip_range_vf", clip_range_vf)
 
     def collect_rollouts(
-        self, env: VecEnv, callback: BaseCallback, rollout_buffer: RolloutBuffer, n_rollout_steps: int
+        self, env: VecEnv, callback: BaseCallback, rollout_buffer: CustomizedRolloutBuffer, n_rollout_steps: int
     ) -> bool:
         """
         Collect experiences using the current policy and fill a ``RolloutBuffer``.
@@ -224,6 +224,12 @@ class CustomizedPPO(PPO):
             with th.no_grad():
                 # Convert to pytorch tensor
                 obs_tensor = th.as_tensor(self._last_obs).to(self.device)
+                """
+                Sida: get memory before passing forward, assuming there's only one rnn module for now.
+                """
+                short_hidden_state = self.policy.features_extractor.cx_train[0]
+                long_hidden_state = self.policy.features_extractor.hx_train[0]
+
                 actions, values, log_probs = self.policy.forward(obs_tensor)
             actions = actions.cpu().numpy()
 
@@ -248,7 +254,14 @@ class CustomizedPPO(PPO):
             if isinstance(self.action_space, gym.spaces.Discrete):
                 # Reshape in case of discrete action
                 actions = actions.reshape(-1, 1)
-            rollout_buffer.add(self._last_obs, actions, rewards, self._last_dones, values, log_probs)
+            
+            """
+            Sida: add memory to rollout buffer
+            """
+            rollout_buffer.add(
+                short_hidden_state, long_hidden_state,
+                self._last_obs, actions, rewards, self._last_dones, values, log_probs)
+
             self._last_obs = new_obs
             self._last_dones = dones
 
