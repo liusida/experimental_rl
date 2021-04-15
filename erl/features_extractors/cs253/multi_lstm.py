@@ -1,3 +1,5 @@
+from contextlib import contextmanager
+from enum import Enum
 import gym
 import torch as th
 from torch import nn
@@ -5,6 +7,10 @@ from torch.nn import functional as F
 
 from stable_baselines3.common.torch_layers import BaseFeaturesExtractor, FlattenExtractor
 
+class ModuleStatus(Enum):
+    ROLLOUT = 0
+    TRAINING = 1
+    TESTING = 2
 
 class MultiLSTMExtractor(BaseFeaturesExtractor):
     """
@@ -26,6 +32,8 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
         m: number of parallel mlps, need to be power of 2.
         The final result will always be of size 64 plus the original input size `n_input`.
         """
+        self.current_status = ModuleStatus.ROLLOUT # possible values 0: rollout, 1: training, 2: testing. keep 0 by default.
+
         self.final_layer_size = 64  # without n_input
         # check power of 2: https://stackoverflow.com/questions/57025836/how-to-check-if-a-given-number-is-a-power-of-two
         assert (m & (m-1) == 0) and m != 0, "m is not power of 2"
@@ -62,13 +70,33 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             self.hx_manual.append(th.randn(64, self.size_per_module))
             self.cx_manual.append(th.randn(64, self.size_per_module))
 
-    def manually_set_hidden_state(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
+    @contextmanager
+    def start_training(self, short_hidden_states: th.Tensor, long_hidden_states: th.Tensor) -> None:
         """
-        Sida: manually set hidden state using states saved in rollout buffer before forward pass during training
+        Sida: 
+            manually set hidden state using states saved in rollout buffer before forward pass during training,
+            set self.is_training to True for forward()
         """
-        for i in range(self.num_parallel_module):
-            self.hx_manual[i] = long_hidden_states[:,i].detach().clone()
-            self.cx_manual[i] = short_hidden_states[:,i].detach().clone()
+        try:
+            for i in range(self.num_parallel_module):
+                self.hx_manual[i] = long_hidden_states[:,i].detach().clone()
+                self.cx_manual[i] = short_hidden_states[:,i].detach().clone()
+            self.current_status = ModuleStatus.TRAINING
+            yield
+        finally:
+            self.current_status = ModuleStatus.ROLLOUT
+
+    @contextmanager
+    def start_testing(self):
+        """
+        Sida:
+            set status to testing
+        """
+        try:
+            self.current_status = ModuleStatus.TESTING
+            yield
+        finally:
+            self.current_status = ModuleStatus.ROLLOUT
 
     def forward(self, observations: th.Tensor) -> th.Tensor:
         x = self.flatten(observations)
@@ -80,15 +108,15 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
             # current plan: 1 env indicates testing,
             # 2 envs indicate collecting rollout,
             # 64 envs indicate training.
-            if x.shape[0] == 1:
+            if self.current_status==ModuleStatus.ROLLOUT:
                 self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
                 xs.append(self.hx_test[:,i])
-            elif x.shape[0] == 2:
-                self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
-                xs.append(self.hx_rollout[:,i])
-            elif x.shape[0] == 64: # training
+            elif self.current_status==ModuleStatus.TRAINING:
                 self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
                 xs.append(self.hx_manual[i])
+            elif self.current_status==ModuleStatus.TESTING:
+                self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
+                xs.append(self.hx_rollout[:,i])
             else:
                 raise NotImplementedError
         # concatenate
