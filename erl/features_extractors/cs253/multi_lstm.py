@@ -21,7 +21,7 @@ class MultiLSTMExtractor(BaseFeaturesExtractor):
 
     """
 
-    def __init__(self, observation_space: gym.Space, m=4):
+    def __init__(self, observation_space: gym.Space, m=2):
         """
         m: number of parallel mlps, need to be power of 2.
         The final result will always be of size 64 plus the original input size `n_input`.
