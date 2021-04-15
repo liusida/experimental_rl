@@ -13,8 +13,8 @@ parser.add_argument("--cuda", action="store_true", help="use cuda if possible.")
 parser.add_argument("--exp_name", type=str, default="Default", help="Name of the experiment. So we can group them on WandB.")
 
 parser.add_argument("--flatten", action="store_true", help="Whether include flattened input as features")
-parser.add_argument("--num_rnns", default=0, help="Number of RNNs")
-parser.add_argument("--num_mlps", default=0, help="Number of MLPs")
+parser.add_argument("--num_rnns", type=int, default=0, help="Number of RNNs")
+parser.add_argument("--num_mlps", type=int, default=0, help="Number of MLPs")
 
 parser.add_argument("--env_id", type=str, default="HopperBulletEnv-v0", help="Specify different environment. The secondary treatment of the experiment.")
 
