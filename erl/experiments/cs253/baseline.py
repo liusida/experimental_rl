@@ -41,7 +41,7 @@ class BaselineExp:
         print("Making train environments...")
         venv = DummyVecEnv([make_env(env_id=env_id, rank=i, seed=args.seed, render=args.render) for i in range(args.num_envs)])
        
-        self.model = PPO("MlpPolicy", venv, tensorboard_log="tb", device=self.device)
+        self.model = PPO("MlpPolicy", venv, tensorboard_log="tb", device=self.device, verbose=1)
         self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
         self.eval_env = make_env(env_id=env_id, rank=99, seed=args.seed, render=False)()
