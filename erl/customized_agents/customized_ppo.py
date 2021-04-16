@@ -195,7 +195,7 @@ class CustomizedPPO(PPO):
         if self.clip_range_vf is not None:
             logger.record("train/clip_range_vf", clip_range_vf)
         logger.dump(step=self.num_timesteps)
-        
+
     def collect_rollouts(
         self, env: VecEnv, callback: BaseCallback, rollout_buffer: CustomizedRolloutBuffer, n_rollout_steps: int
     ) -> bool:

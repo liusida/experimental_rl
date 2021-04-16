@@ -1,10 +1,14 @@
+import numpy as np
 import torch as th
 
 from erl.customized_agents.multi_extractor import MultiExtractor
 from erl.experiments.cs253.multimodule_exp import MultiModuleExp
 
 def run_current_exp(args):
+    np.random.seed(args.seed)
     th.manual_seed(args.seed)
+
+    args.group = f"I{int(args.implementation_check)}F{int(args.flatten)}R{args.num_rnns}M{args.num_mlps}"
     if args.implementation_check:
         run_default(args)
     else:
