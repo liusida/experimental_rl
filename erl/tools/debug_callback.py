@@ -11,5 +11,5 @@ class DebugCallback(EventCallback):
             "debug/sum_actions": s,
             "step": self.num_timesteps
         })
-        print("debug> actions> ", s)
+        print(f"debug> [{self.num_timesteps}] actions> {s}")
         return super()._on_step()
