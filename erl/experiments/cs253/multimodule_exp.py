@@ -24,7 +24,7 @@ class MultiModuleExp:
                  env_id="HopperBulletEnv-v0",
                  features_extractor_kwargs={},
                  ) -> None:
-        print("Starting MultiRNNExp")
+        print("Starting MultiModuleExp")
         """ Init with parameters to control the training process """
         self.args = args
         self.env_id = env_id
