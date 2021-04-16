@@ -8,6 +8,7 @@ from erl.tools.adjust_camera_callback import AdjustCameraCallback
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from erl.customized_agents.customized_callback import CustomizedEvalCallback
+from erl.tools.debug_callback import DebugCallback
 from erl.customized_agents.multi_extractor import MultiExtractor
 
 class MultiModuleExp:
@@ -55,6 +56,7 @@ class MultiModuleExp:
         print(f"train using {self.model.device.type}")
 
         callback = [
+            DebugCallback(),
             AdjustCameraCallback(),
             WandbCallback(self.args),
             CustomizedEvalCallback(

@@ -7,6 +7,7 @@ import erl.envs  # need this to register the bullet envs
 from erl.tools.wandb_logger import WandbCallback
 from erl.tools.gym_helper import make_env
 from erl.tools.adjust_camera_callback import AdjustCameraCallback
+from erl.tools.debug_callback import DebugCallback
 
 class BaselineExp:
     """ 
@@ -39,6 +40,7 @@ class BaselineExp:
         print(f"train using {self.model.device.type}")
 
         callback = [
+            DebugCallback(),
             AdjustCameraCallback(),
             WandbCallback(self.args),
             EvalCallback(
