@@ -56,7 +56,7 @@ class MultiModuleExp:
         print(f"train using {self.model.device.type}")
 
         callback = [
-            DebugCallback(),
+            DebugCallback("Customized"),
             AdjustCameraCallback(),
             WandbCallback(self.args),
             CustomizedEvalCallback(

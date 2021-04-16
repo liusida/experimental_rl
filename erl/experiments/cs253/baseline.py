@@ -40,7 +40,7 @@ class BaselineExp:
         print(f"train using {self.model.device.type}")
 
         callback = [
-            DebugCallback(),
+            DebugCallback("PPO"),
             AdjustCameraCallback(),
             WandbCallback(self.args),
             EvalCallback(
