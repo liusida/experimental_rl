@@ -18,6 +18,7 @@ class BaselineExp:
                  env_id="HopperBulletEnv-v0",
                  ) -> None:
         """ Init with parameters to control the training process """
+        print("Starting BaselineExp")
         self.args = args
         self.env_id = env_id
         self.use_cuda = torch.cuda.is_available() and args.cuda
@@ -32,7 +33,6 @@ class BaselineExp:
             self.eval_env = VecNormalize(self.eval_env, norm_reward=False)
         
         self.model = PPO("MlpPolicy", venv, tensorboard_log="tb", device=self.device, verbose=1)
-        self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
 
     def train(self) -> None:
         """ Start training """

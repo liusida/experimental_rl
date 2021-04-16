@@ -49,7 +49,6 @@ class MultiModuleExp:
         }
         
         self.model = CustomizedPPO("MlpPolicy", venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1)
-        self.model.experiment = self  # pass the experiment handle into the model, and then into the TrainVAECallback
         
     def train(self) -> None:
         """ Start training """
@@ -67,6 +66,5 @@ class MultiModuleExp:
                 verbose=0,
             )
         ]
-        with torch.autograd.set_detect_anomaly(True):
-            self.model.learn(self.args.total_timesteps, callback=callback)
+        self.model.learn(self.args.total_timesteps, callback=callback)
 
