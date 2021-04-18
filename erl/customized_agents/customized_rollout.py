@@ -120,6 +120,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             self.returns[batch_inds],
             self.short_hidden_states[batch_inds],
             self.long_hidden_states[batch_inds],
+            self.dones[batch_inds],
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
@@ -132,3 +133,4 @@ class CustomizedRolloutBufferSamples(NamedTuple):
     returns: th.Tensor
     short_hidden_states: th.Tensor
     long_hidden_states: th.Tensor
+    dones: th.Tensor
