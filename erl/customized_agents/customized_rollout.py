@@ -83,6 +83,28 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
+    def get_sequence(self, batch_size: Optional[int] = None) -> Generator[RolloutBufferSamples, None, None]:
+        """ modified from get() 
+        batch_size: is equivalent to sequence length.
+        """
+        assert self.full, ""
+        for i in range(self.n_envs): # first, loop through envs, different envs have different sequences
+            indices = np.arange(self.buffer_size)
+            # Prepare the data
+            if not self.generator_ready:
+                for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns"]:
+                    self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor]) # shape need to be [batch_size, num_env, ...something else...]
+                self.generator_ready = True
+
+            # Return everything, don't create minibatches
+            if batch_size is None:
+                batch_size = self.buffer_size
+
+            start_idx = 0
+            while start_idx < self.buffer_size:
+                yield self._get_samples(indices[start_idx : start_idx + batch_size])
+                start_idx += batch_size
+
 class CustomizedRolloutBufferSamples(NamedTuple):
     observations: th.Tensor
     actions: th.Tensor

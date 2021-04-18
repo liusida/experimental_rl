@@ -71,8 +71,8 @@ class CustomizedPPO(PPO):
                          use_sde=use_sde, sde_sample_freq=sde_sample_freq, target_kl=target_kl, tensorboard_log=tensorboard_log, create_eval_env=create_eval_env,
                          policy_kwargs=policy_kwargs, verbose=verbose, seed=seed, device=device, _init_setup_model=_init_setup_model)
         self.rollout_buffer = CustomizedRolloutBuffer(
-            rnn_num_parallel_module=self.policy.features_extractor.num_parallel_rnns,
-            rnn_size_per_module = self.policy.features_extractor.size_per_module,
+            # rnn_num_parallel_module=self.policy.features_extractor.num_parallel_rnns,
+            # rnn_size_per_module = self.policy.features_extractor.size_per_module,
 
             buffer_size=self.n_steps,
             observation_space=self.observation_space,
@@ -85,7 +85,21 @@ class CustomizedPPO(PPO):
     def train(self) -> None:
         """
         Update policy using the currently gathered rollout buffer.
+        Sida:
+        Two parts: one for mlps or flatten, one for rnns.
+        They will be trained differently.
         """
+        # train rnn
+        self.train_recurrent()
+        # train normal feed forward
+        super().train()
+    
+    def train_recurrent(self):
+        """
+        get non-randomized obs sequence, and pass through rnn, and backpropagate through time.
+        """
+        if self.policy.features_extractor.num_parallel_rnns==0: # no rnn
+            return
         # Update optimizer learning rate
         self._update_learning_rate(self.policy.optimizer)
         # Compute current clip range
@@ -102,7 +116,7 @@ class CustomizedPPO(PPO):
         for epoch in range(self.n_epochs):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
-            for rollout_data in self.rollout_buffer.get(self.batch_size):
+            for rollout_data in self.rollout_buffer.get_sequence(self.batch_size):
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
@@ -180,21 +194,22 @@ class CustomizedPPO(PPO):
         explained_var = explained_variance(self.rollout_buffer.values.flatten(), self.rollout_buffer.returns.flatten())
 
         # Logs
-        logger.record("train/entropy_loss", np.mean(entropy_losses))
-        logger.record("train/policy_gradient_loss", np.mean(pg_losses))
-        logger.record("train/value_loss", np.mean(value_losses))
-        logger.record("train/approx_kl", np.mean(approx_kl_divs))
-        logger.record("train/clip_fraction", np.mean(clip_fractions))
-        logger.record("train/loss", loss.item())
-        logger.record("train/explained_variance", explained_var)
+        logger.record("train_rnn/entropy_loss", np.mean(entropy_losses))
+        logger.record("train_rnn/policy_gradient_loss", np.mean(pg_losses))
+        logger.record("train_rnn/value_loss", np.mean(value_losses))
+        logger.record("train_rnn/approx_kl", np.mean(approx_kl_divs))
+        logger.record("train_rnn/clip_fraction", np.mean(clip_fractions))
+        logger.record("train_rnn/loss", loss.item())
+        logger.record("train_rnn/explained_variance", explained_var)
         if hasattr(self.policy, "log_std"):
-            logger.record("train/std", th.exp(self.policy.log_std).mean().item())
+            logger.record("train_rnn/std", th.exp(self.policy.log_std).mean().item())
 
-        logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
-        logger.record("train/clip_range", clip_range)
+        logger.record("train_rnn/n_updates", self._n_updates, exclude="tensorboard")
+        logger.record("train_rnn/clip_range", clip_range)
         if self.clip_range_vf is not None:
-            logger.record("train/clip_range_vf", clip_range_vf)
+            logger.record("train_rnn/clip_range_vf", clip_range_vf)
         logger.dump(step=self.num_timesteps)
+
 
     def collect_rollouts(
         self, env: VecEnv, callback: BaseCallback, rollout_buffer: CustomizedRolloutBuffer, n_rollout_steps: int
