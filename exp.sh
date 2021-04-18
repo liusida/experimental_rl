@@ -3,8 +3,25 @@ set -x
 
 git pull
 
-# 2021-04-15
+# 2021-04-18
 if true
+then
+    exp_name="RNNSeqLen"
+    for seed in 0 1 2
+    do
+        common_args="--exp_name=$exp_name --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed"
+        for seqlen in 8 16 32
+        do
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=1
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=4
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=$seqlen
+        done
+    done
+fi
+
+
+# 2021-04-15
+if false
 then
     exp_name="Gamma1"
     for seed in 0 1 2 3 4 5 6 7 8 9
