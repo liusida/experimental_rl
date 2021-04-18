@@ -77,7 +77,7 @@ class MultiExtractor(BaseFeaturesExtractor):
 
             for i in range(self.num_parallel_rnns):
                 self.ensembled_rnns.append(
-                    nn.LSTM(input_size=n_input, hidden_size=self.size_per_module),
+                    nn.LSTMCell(input_size=n_input, hidden_size=self.size_per_module),
                 )
 
         for i in range(self.num_parallel_mlps):
