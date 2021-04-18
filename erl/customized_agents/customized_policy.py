@@ -13,7 +13,7 @@ class CustomizedPolicy(ActorCriticPolicy):
             seq.append(obs[i])
         
         for obs_step in seq:
-            latent_pi, latent_vf, latent_sde = self._get_latent(obs)
+            latent_pi, latent_vf, latent_sde = self._get_latent(obs_step)
         distribution = self._get_action_dist_from_latent(latent_pi, latent_sde)
         log_prob = distribution.log_prob(actions)
         values = self.value_net(latent_vf)
