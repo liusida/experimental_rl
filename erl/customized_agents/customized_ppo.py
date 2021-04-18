@@ -131,7 +131,7 @@ class CustomizedPPO(PPO):
                 Sida: Change the input to evaluate_actions()
                 """
                 with self.policy.features_extractor.start_training(rollout_data.short_hidden_states, rollout_data.long_hidden_states):
-                    values, log_prob, entropy = self.policy.evaluate_actions(rollout_data.observations, actions)
+                    values, log_prob, entropy = self.policy.evaluate_actions_rnn(rollout_data.observations, actions)
 
                 values = values.flatten()
                 # Normalize advantage
