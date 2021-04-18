@@ -366,7 +366,7 @@ class CustomizedPPO(PPO):
                     short_hidden_states = self.policy.features_extractor.cx_rollout.cpu().numpy()
                     long_hidden_states = self.policy.features_extractor.hx_rollout.cpu().numpy()
 
-                actions, values, log_probs = self.policy.forward(obs_tensor, dones)
+                actions, values, log_probs = self.policy.forward(obs_tensor, new_start=dones)
             actions = actions.cpu().numpy()
 
             # Rescale and perform action
