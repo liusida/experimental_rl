@@ -90,7 +90,6 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         batch_size: is equivalent to rnn_sequence_length.
         """
         assert self.full, ""
-        # for env_id in range(self.n_envs): # first, loop through envs, different envs have different sequences
         indices = np.arange(self.buffer_size)
 
         # Return everything, don't create minibatches
