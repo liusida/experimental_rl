@@ -88,21 +88,22 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         batch_size: is equivalent to sequence length.
         """
         assert self.full, ""
-        indices = np.arange(self.buffer_size)
-        # Prepare the data
-        if not self.generator_ready:
+        for env_id in range(self.n_envs): # first, loop through envs, different envs have different sequences
+            indices = np.arange(self.buffer_size)
+            # Prepare the data
+            # if not self.generator_ready:
             for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns", "short_hidden_states", "long_hidden_states"]:
-                self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor]) # shape need to be [batch_size, num_env, ...something else...]
-            self.generator_ready = True
+                self.__dict__[tensor] = self.__dict__[tensor][:,env_id] # shape need to be [batch_size, num_env, ...something else...]
+                # self.generator_ready = True
 
-        # Return everything, don't create minibatches
-        if batch_size is None:
-            batch_size = self.buffer_size
+            # Return everything, don't create minibatches
+            if batch_size is None:
+                batch_size = self.buffer_size
 
-        start_idx = 0
-        while start_idx < self.buffer_size:
-            yield self._get_samples(indices[start_idx : start_idx + batch_size])
-            start_idx += batch_size
+            start_idx = 0
+            while start_idx < self.buffer_size:
+                yield self._get_samples(indices[start_idx : start_idx + batch_size])
+                start_idx += batch_size
 
 class CustomizedRolloutBufferSamples(NamedTuple):
     observations: th.Tensor
