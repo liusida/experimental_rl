@@ -6,6 +6,22 @@ from stable_baselines3.common.policies import ActorCriticPolicy
 
 
 class CustomizedPolicy(ActorCriticPolicy):
+    def forward(self, obs: th.Tensor, deterministic: bool = False, new_start: Optional[th.Tensor] = None) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
+        """
+        Forward pass in all the networks (actor and critic)
+
+        :param obs: Observation
+        :param deterministic: Whether to sample or use deterministic actions
+        :return: action, value and log probability of the action
+        """
+        latent_pi, latent_vf, latent_sde = self._get_latent(obs, new_start)
+        # Evaluate the values for the given observations
+        values = self.value_net(latent_vf)
+        distribution = self._get_action_dist_from_latent(latent_pi, latent_sde=latent_sde)
+        actions = distribution.get_actions(deterministic=deterministic)
+        log_prob = distribution.log_prob(actions)
+        return actions, values, log_prob
+
     def evaluate_actions_rnn(self, obs: th.Tensor, actions: th.Tensor, dones: th.Tensor) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
         """
         evaluate actions recurrently.

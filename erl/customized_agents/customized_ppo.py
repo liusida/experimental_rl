@@ -350,7 +350,7 @@ class CustomizedPPO(PPO):
         Sida
         """
         short_hidden_states, long_hidden_states = None, None
-
+        dones = None
         while n_steps < n_rollout_steps:
             if self.use_sde and self.sde_sample_freq > 0 and n_steps % self.sde_sample_freq == 0:
                 # Sample a new noise matrix
@@ -366,7 +366,7 @@ class CustomizedPPO(PPO):
                     short_hidden_states = self.policy.features_extractor.cx_rollout.cpu().numpy()
                     long_hidden_states = self.policy.features_extractor.hx_rollout.cpu().numpy()
 
-                actions, values, log_probs = self.policy.forward(obs_tensor)
+                actions, values, log_probs = self.policy.forward(obs_tensor, dones)
             actions = actions.cpu().numpy()
 
             # Rescale and perform action
