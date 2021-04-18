@@ -1,3 +1,4 @@
+from typing import Any, Dict, List, Optional, Tuple, Type, Union
 from contextlib import contextmanager
 from enum import Enum
 import gym
@@ -113,7 +114,7 @@ class MultiExtractor(BaseFeaturesExtractor):
         finally:
             self.current_status = ModuleStatus.ROLLOUT
 
-    def forward(self, observations: th.Tensor, new_start: th.Tensor) -> th.Tensor:
+    def forward(self, observations: th.Tensor, new_start: Optional[th.Tensor] = None) -> th.Tensor:
         x = self.flatten(observations)
 
         # branch
@@ -125,18 +126,21 @@ class MultiExtractor(BaseFeaturesExtractor):
         # all rnns
         for i, modules in enumerate(self.ensembled_rnns):
             if self.current_status==ModuleStatus.ROLLOUT:
-                self.hx_rollout[:,i] = (1-new_start[i]) * self.hx_rollout[:,i]
-                self.cx_rollout[:,i] = (1-new_start[i]) * self.cx_rollout[:,i]
+                if new_start is not None:
+                    self.hx_rollout[:,i] = (1-new_start[i]) * self.hx_rollout[:,i]
+                    self.cx_rollout[:,i] = (1-new_start[i]) * self.cx_rollout[:,i]
                 self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
                 xs.append(self.hx_rollout[:,i])
             elif self.current_status==ModuleStatus.TRAINING:
-                self.hx_manual[i] = (1 - self.new_start[i]) * self.hx_manual[i]
-                self.cx_manual[i] = (1 - self.new_start[i]) * self.cx_manual[i]
+                if new_start is not None:
+                    self.hx_manual[i] = (1 - self.new_start[i]) * self.hx_manual[i]
+                    self.cx_manual[i] = (1 - self.new_start[i]) * self.cx_manual[i]
                 self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
                 xs.append(self.hx_manual[i])
             elif self.current_status==ModuleStatus.TESTING:
-                self.hx_test[:,i] = (1-new_start[i]) * self.hx_test[:,i]
-                self.cx_test[:,i] = (1-new_start[i]) * self.cx_test[:,i]
+                if new_start is not None:
+                    self.hx_test[:,i] = (1-new_start[i]) * self.hx_test[:,i]
+                    self.cx_test[:,i] = (1-new_start[i]) * self.cx_test[:,i]
                 self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
                 xs.append(self.hx_test[:,i])
             else:
