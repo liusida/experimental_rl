@@ -88,17 +88,17 @@ class CustomizedPPO(PPO):
         Two parts: one for mlps or flatten, one for rnns.
         They will be trained differently.
         """
-        # train rnn
-        self.train_recurrent()
-        # train normal feed forward
-        super().train()
+        if self.policy.features_extractor.num_parallel_rnns>0: # no rnn
+            # train rnn
+            self.train_recurrent()
+        if self.policy.features_extractor.num_parallel_mlps>0 or self.policy.features_extractor.include_flatten:
+            # train normal feed forward
+            super().train()
     
     def train_recurrent(self):
         """
         get non-randomized obs sequence, and pass through rnn, and backpropagate through time.
         """
-        if self.policy.features_extractor.num_parallel_rnns==0: # no rnn
-            return
         # Update optimizer learning rate
         self._update_learning_rate(self.policy.optimizer)
         # Compute current clip range
