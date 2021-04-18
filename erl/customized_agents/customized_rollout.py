@@ -114,10 +114,10 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         data = (
             self.observations[batch_inds],
             self.actions[batch_inds],
-            self.values[batch_inds].flatten(),
-            self.log_probs[batch_inds].flatten(),
-            self.advantages[batch_inds].flatten(),
-            self.returns[batch_inds].flatten(),
+            self.values[batch_inds],
+            self.log_probs[batch_inds],
+            self.advantages[batch_inds],
+            self.returns[batch_inds],
             self.short_hidden_states[batch_inds],
             self.long_hidden_states[batch_inds],
         )
