@@ -91,7 +91,7 @@ class CustomizedPPO(PPO):
         if self.policy.features_extractor.num_parallel_rnns>0: # no rnn
             # train rnn
             self.train_recurrent()
-        if self.policy.features_extractor.num_parallel_mlps>0 or self.policy.features_extractor.include_flatten:
+        if self.policy.features_extractor.num_parallel_mlps>0 or self.policy.features_extractor.include_input:
             # train normal feed forward
             super().train()
     
