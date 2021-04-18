@@ -94,8 +94,8 @@ class MultiExtractor(BaseFeaturesExtractor):
         """
         try:
             for i in range(self.num_parallel_rnns):
-                self.hx_manual[i] = long_hidden_states[i].detach().clone()
-                self.cx_manual[i] = short_hidden_states[i].detach().clone()
+                self.hx_manual[i] = long_hidden_states[i].detach().clone().unsqueeze(0)
+                self.cx_manual[i] = short_hidden_states[i].detach().clone().unsqueeze(0)
             self.current_status = ModuleStatus.TRAINING
             yield
         finally:
