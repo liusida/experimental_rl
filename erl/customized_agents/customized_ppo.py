@@ -135,11 +135,11 @@ class CustomizedPPO(PPO):
 
                 values = values.flatten()
                 # Normalize advantage
-                advantages = rollout_data.advantages
+                advantages = rollout_data.advantages[-1]
                 advantages = (advantages - advantages.mean()) / (advantages.std() + 1e-8)
 
                 # ratio between old and new policy, should be one at the first iteration
-                ratio = th.exp(log_prob - rollout_data.old_log_prob)
+                ratio = th.exp(log_prob - rollout_data.old_log_prob[-1])
 
                 # clipped surrogate loss
                 policy_loss_1 = advantages * ratio
@@ -157,11 +157,11 @@ class CustomizedPPO(PPO):
                 else:
                     # Clip the different between old and new value
                     # NOTE: this depends on the reward scaling
-                    values_pred = rollout_data.old_values + th.clamp(
-                        values - rollout_data.old_values, -clip_range_vf, clip_range_vf
+                    values_pred = rollout_data.old_values[-1] + th.clamp(
+                        values - rollout_data.old_values[-1], -clip_range_vf, clip_range_vf
                     )
                 # Value loss using the TD(gae_lambda) target
-                value_loss = F.mse_loss(rollout_data.returns, values_pred)
+                value_loss = F.mse_loss(rollout_data.returns[-1], values_pred)
                 value_losses.append(value_loss.item())
 
                 # Entropy loss favor exploration
@@ -181,7 +181,7 @@ class CustomizedPPO(PPO):
                 # Clip grad norm
                 th.nn.utils.clip_grad_norm_(self.policy.parameters(), self.max_grad_norm)
                 self.policy.optimizer.step()
-                approx_kl_divs.append(th.mean(rollout_data.old_log_prob - log_prob).detach().cpu().numpy())
+                approx_kl_divs.append(th.mean(rollout_data.old_log_prob[-1] - log_prob).detach().cpu().numpy())
 
             all_kl_divs.append(np.mean(approx_kl_divs))
 
