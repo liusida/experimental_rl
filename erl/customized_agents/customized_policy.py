@@ -21,7 +21,7 @@ class CustomizedPolicy(ActorCriticPolicy):
         values = self.value_net(latent_vf)
         return values, log_prob, distribution.entropy()
 
-    def extract_features(self, obs: th.Tensor, new_start: th.Tensor) -> th.Tensor:
+    def extract_features(self, obs: th.Tensor, new_start: Optional[th.Tensor] = None) -> th.Tensor:
         """
         Preprocess the observation if needed and extract features.
 
@@ -32,7 +32,7 @@ class CustomizedPolicy(ActorCriticPolicy):
         preprocessed_obs = preprocess_obs(obs, self.observation_space, normalize_images=self.normalize_images)
         return self.features_extractor(preprocessed_obs, new_start)
 
-    def _get_latent(self, obs: th.Tensor, new_start: th.Tensor) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
+    def _get_latent(self, obs: th.Tensor, new_start: Optional[th.Tensor] = None) -> Tuple[th.Tensor, th.Tensor, th.Tensor]:
         """
         Get the latent code (i.e., activations of the last layer of each network)
         for the different networks.
