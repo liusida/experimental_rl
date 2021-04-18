@@ -305,20 +305,20 @@ class CustomizedPPO(PPO):
         explained_var = explained_variance(self.rollout_buffer.values.flatten(), self.rollout_buffer.returns.flatten())
 
         # Logs
-        logger.record("train/entropy_loss", np.mean(entropy_losses))
-        logger.record("train/policy_gradient_loss", np.mean(pg_losses))
-        logger.record("train/value_loss", np.mean(value_losses))
-        logger.record("train/approx_kl", np.mean(approx_kl_divs))
-        logger.record("train/clip_fraction", np.mean(clip_fractions))
-        logger.record("train/loss", loss.item())
-        logger.record("train/explained_variance", explained_var)
+        logger.record("train_normal/entropy_loss", np.mean(entropy_losses))
+        logger.record("train_normal/policy_gradient_loss", np.mean(pg_losses))
+        logger.record("train_normal/value_loss", np.mean(value_losses))
+        logger.record("train_normal/approx_kl", np.mean(approx_kl_divs))
+        logger.record("train_normal/clip_fraction", np.mean(clip_fractions))
+        logger.record("train_normal/loss", loss.item())
+        logger.record("train_normal/explained_variance", explained_var)
         if hasattr(self.policy, "log_std"):
-            logger.record("train/std", th.exp(self.policy.log_std).mean().item())
+            logger.record("train_normal/std", th.exp(self.policy.log_std).mean().item())
 
-        logger.record("train/n_updates", self._n_updates, exclude="tensorboard")
-        logger.record("train/clip_range", clip_range)
+        logger.record("train_normal/n_updates", self._n_updates, exclude="tensorboard")
+        logger.record("train_normal/clip_range", clip_range)
         if self.clip_range_vf is not None:
-            logger.record("train/clip_range_vf", clip_range_vf)
+            logger.record("train_normal/clip_range_vf", clip_range_vf)
         logger.dump(step=self.num_timesteps)
         
 
