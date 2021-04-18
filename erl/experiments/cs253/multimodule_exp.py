@@ -12,6 +12,7 @@ from erl.customized_agents.customized_policy import CustomizedPolicy
 from erl.tools.debug_callback import DebugCallback
 from erl.customized_agents.multi_extractor import MultiExtractor
 
+
 class MultiModuleExp:
     """ 
     A whole experiment.
@@ -40,18 +41,19 @@ class MultiModuleExp:
         if args.vec_normalize:
             venv = VecNormalize(venv)
             self.eval_env = VecNormalize(self.eval_env, norm_reward=False)
-        
+
         features_extractor_kwargs["num_envs"] = args.num_envs
         policy_kwargs = {
             "features_extractor_class": MultiExtractor,
             "features_extractor_kwargs": features_extractor_kwargs,
             # Note: net_arch must be specified, because sb3 won't set the default network architecture if we change the features_extractor.
             # pi: Actor (policy-function); vf: Critic (value-function)
-            "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
+            "net_arch": [dict(pi=[64, 64], vf=[64, 64])],
         }
-        
-        self.model = CustomizedPPO(CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1)
-        
+
+        self.model = CustomizedPPO(CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs,
+                                   device=self.device, verbose=1, rnn_move_window_step=args.rnn_move_window_step, rnn_sequence_length=args.rnn_sequence_length)
+
     def train(self) -> None:
         """ Start training """
         print(f"train using {self.model.device.type}")
@@ -70,4 +72,3 @@ class MultiModuleExp:
             )
         ]
         self.model.learn(self.args.total_timesteps, callback=callback)
-

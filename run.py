@@ -23,7 +23,11 @@ parser.add_argument("--eval_freq", type=int, default=10000, help="eval_freq for 
 
 parser.add_argument("--implementation_check", action="store_true", help="use default implementation, check with flatten version, to make sure the implementation of flatten version is correct.")
 parser.add_argument("--vec_normalize", action="store_true", help="use sb3 VecNormalization to improve performance.")
+parser.add_argument("--rnn_move_window_step", type=int, default=1, help="set to 1 for data efficiency, set to rnn_sequence_length to get faster wall time.")
+parser.add_argument("--rnn_sequence_length", type=int, default=16, help="Length of a sequence for RNN to learn. (We don't BPTT for the whole episode, no need)")
 args = parser.parse_args()
+
+assert(args.rnn_sequence_length>args.rnn_move_window_step)
 
 args.commit = subprocess.check_output(["git", "rev-parse", "--verify", "HEAD"])
 

@@ -15,7 +15,6 @@ class CustomizedRolloutBuffer(RolloutBuffer):
     def __init__(self, rnn_num_parallel_module: int, rnn_size_per_module: int, buffer_size: int, observation_space: spaces.Space, action_space: spaces.Space, device: Union[th.device, str], gae_lambda: float, gamma: float, n_envs: int):
         self.rnn_num_parallel_module = rnn_num_parallel_module
         self.rnn_size_per_module = rnn_size_per_module
-        self.generator_ready_rnn = defaultdict(lambda: False)
 
         super().__init__(buffer_size, observation_space, action_space, device=device, gae_lambda=gae_lambda, gamma=gamma, n_envs=n_envs)
     def reset(self) -> None:
@@ -86,18 +85,13 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
-    def get_sequence(self, batch_size: Optional[int] = None) -> Generator[RolloutBufferSamples, None, None]:
+    def get_sequence(self, batch_size: Optional[int] = None, rnn_move_window_step=1) -> Generator[RolloutBufferSamples, None, None]:
         """ modified from get() 
-        batch_size: is equivalent to sequence length.
+        batch_size: is equivalent to rnn_sequence_length.
         """
         assert self.full, ""
         # for env_id in range(self.n_envs): # first, loop through envs, different envs have different sequences
         indices = np.arange(self.buffer_size)
-        # Prepare the data
-        # if not self.generator_ready_rnn[env_id]:
-        #     for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns", "short_hidden_states", "long_hidden_states"]:
-        #         self.__dict__[tensor] = self.__dict__[tensor][:,env_id] # shape need to be [batch_size, num_env, ...something else...]
-        #     self.generator_ready_rnn[env_id] = True
 
         # Return everything, don't create minibatches
         if batch_size is None:
@@ -106,7 +100,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         start_idx = 0
         while start_idx < self.buffer_size:
             yield self._get_samples_seq(indices[start_idx : start_idx + batch_size])
-            start_idx += batch_size
+            start_idx += rnn_move_window_step
 
     def _get_samples_seq(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> RolloutBufferSamples:
         """

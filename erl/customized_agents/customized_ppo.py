@@ -62,6 +62,8 @@ class CustomizedPPO(PPO):
         seed: Optional[int] = None,
         device: Union[th.device, str] = "auto",
         _init_setup_model: bool = True,
+        rnn_sequence_length: int = 16,
+        rnn_move_window_step: bool = False,
     ):
         """
         Sida: switch to CustomizedRolloutBuffer
@@ -80,6 +82,9 @@ class CustomizedPPO(PPO):
             gamma=self.gamma,
             gae_lambda=self.gae_lambda,
             n_envs=self.n_envs,)
+
+        self.rnn_move_window_step = rnn_move_window_step
+        self.rnn_sequence_length = rnn_sequence_length
 
     def train(self) -> None:
         """
@@ -115,7 +120,7 @@ class CustomizedPPO(PPO):
         for epoch in range(self.n_epochs):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
-            for rollout_data in self.rollout_buffer.get_sequence(self.batch_size):
+            for rollout_data in self.rollout_buffer.get_sequence(self.rnn_sequence_length, rnn_move_window_step=self.rnn_move_window_step):
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
@@ -125,7 +130,7 @@ class CustomizedPPO(PPO):
                 # TODO: investigate why there is no issue with the gradient
                 # if that line is commented (as in SAC)
                 if self.use_sde:
-                    self.policy.reset_noise(self.batch_size)
+                    self.policy.reset_noise(self.batch_size) #TODO: enable this SDE?
 
                 """
                 Sida: Change the input to evaluate_actions()
