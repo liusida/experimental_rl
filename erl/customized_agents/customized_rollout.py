@@ -56,7 +56,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             """
             Sida: add short and long
             """
-            for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns", "short_hidden_states", "long_hidden_states"]:
+            for tensor in ["observations", "actions", "values", "log_probs", "advantages", "returns", "short_hidden_states", "long_hidden_states", "dones"]:
                 self.__dict__[tensor] = self.swap_and_flatten(self.__dict__[tensor]) # shape need to be [batch_size, num_env, ...something else...]
             self.generator_ready = True
 
