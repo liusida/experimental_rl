@@ -130,8 +130,9 @@ class CustomizedPPO(PPO):
                 """
                 Sida: Change the input to evaluate_actions()
                 """
+                dones = th.as_tensor(rollout_data.dones, dtype=th.bool).to(self.device)
                 with self.policy.features_extractor.start_training(rollout_data.short_hidden_states[0], rollout_data.long_hidden_states[0]):
-                    values, log_prob, entropy = self.policy.evaluate_actions_rnn(rollout_data.observations, actions[-1], rollout_data.dones)
+                    values, log_prob, entropy = self.policy.evaluate_actions_rnn(rollout_data.observations, actions[-1], dones)
 
                 values = values.flatten()
                 # Normalize advantage
