@@ -6,7 +6,7 @@ git pull
 # 2021-04-15
 if true
 then
-    exp_name="Gamma"
+    exp_name="Gamma1"
     for seed in 0 1 2 3 4 5 6 7 8 9
     do
         common_args="--cuda --exp_name=$exp_name --vec_normalize --env_id=HopperBulletEnv-v0 --num_envs=16 --total_timesteps=3e6 --seed=$seed"
