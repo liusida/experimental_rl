@@ -127,20 +127,20 @@ class MultiExtractor(BaseFeaturesExtractor):
         for i, modules in enumerate(self.ensembled_rnns):
             if self.current_status==ModuleStatus.ROLLOUT:
                 if new_start is not None:
-                    self.hx_rollout[:,i] = (~new_start) * self.hx_rollout[:,i]
-                    self.cx_rollout[:,i] = (~new_start) * self.cx_rollout[:,i]
+                    self.hx_rollout[:,i] = (~new_start).unsqueeze(1) * self.hx_rollout[:,i]
+                    self.cx_rollout[:,i] = (~new_start).unsqueeze(1) * self.cx_rollout[:,i]
                 self.hx_rollout[:,i], self.cx_rollout[:,i] = modules(x, (self.hx_rollout[:,i], self.cx_rollout[:,i]))
                 xs.append(self.hx_rollout[:,i])
             elif self.current_status==ModuleStatus.TRAINING:
                 if new_start is not None:
-                    self.hx_manual[i] = (~new_start) * self.hx_manual[i]
-                    self.cx_manual[i] = (~new_start) * self.cx_manual[i]
+                    self.hx_manual[i] = (~new_start).unsqueeze(1) * self.hx_manual[i]
+                    self.cx_manual[i] = (~new_start).unsqueeze(1) * self.cx_manual[i]
                 self.hx_manual[i], self.cx_manual[i] = modules(x, (self.hx_manual[i], self.cx_manual[i]))
                 xs.append(self.hx_manual[i])
             elif self.current_status==ModuleStatus.TESTING:
                 if new_start is not None:
-                    self.hx_test[:,i] = (~new_start) * self.hx_test[:,i]
-                    self.cx_test[:,i] = (~new_start) * self.cx_test[:,i]
+                    self.hx_test[:,i] = (~new_start).unsqueeze(1) * self.hx_test[:,i]
+                    self.cx_test[:,i] = (~new_start).unsqueeze(1) * self.cx_test[:,i]
                 self.hx_test[:,i], self.cx_test[:,i] = modules(x, (self.hx_test[:,i], self.cx_test[:,i]))
                 xs.append(self.hx_test[:,i])
             else:
