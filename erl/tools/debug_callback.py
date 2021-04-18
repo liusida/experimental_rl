@@ -5,7 +5,7 @@ from stable_baselines3.common.callbacks import EventCallback
 class DebugCallback(EventCallback):
     def __init__(self, name=""):
         self.name = name
-        self.enabled = True
+        self.enabled = False
         super().__init__()
 
     def _on_step(self) -> bool:
