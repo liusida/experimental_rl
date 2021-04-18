@@ -8,6 +8,7 @@ from erl.tools.adjust_camera_callback import AdjustCameraCallback
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from erl.customized_agents.customized_callback import CustomizedEvalCallback
+from erl.customized_agents.customized_policy import CustomizedPolicy
 from erl.tools.debug_callback import DebugCallback
 from erl.customized_agents.multi_extractor import MultiExtractor
 
@@ -49,7 +50,7 @@ class MultiModuleExp:
             "net_arch" : [dict(pi=[64, 64], vf=[64, 64])],
         }
         
-        self.model = CustomizedPPO("MlpPolicy", venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1)
+        self.model = CustomizedPPO(CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1)
         
     def train(self) -> None:
         """ Start training """

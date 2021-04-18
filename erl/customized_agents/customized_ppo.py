@@ -33,13 +33,13 @@ from stable_baselines3.common.vec_env import VecEnv
 # this file
 from stable_baselines3 import PPO
 
-from erl.customized_agents.customized_rollout import CustomizedRolloutBuffer
-
+from .customized_rollout import CustomizedRolloutBuffer
+from .customized_policy import CustomizedPolicy
 
 class CustomizedPPO(PPO):
     def __init__(
         self,
-        policy: Union[str, Type[ActorCriticPolicy]],
+        policy: Union[str, Type[CustomizedPolicy]],
         env: Union[GymEnv, str],
         learning_rate: Union[float, Schedule] = 3e-4,
         n_steps: int = 2048,
