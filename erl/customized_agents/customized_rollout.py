@@ -82,6 +82,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             self.returns[batch_inds].flatten(),
             self.short_hidden_states[batch_inds],
             self.long_hidden_states[batch_inds],
+            self.dones[batch_inds],
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
