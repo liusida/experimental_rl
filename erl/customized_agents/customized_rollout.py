@@ -104,8 +104,24 @@ class CustomizedRolloutBuffer(RolloutBuffer):
 
         start_idx = 0
         while start_idx < self.buffer_size:
-            yield self._get_samples(indices[start_idx : start_idx + batch_size])
+            yield self._get_samples_seq(indices[start_idx : start_idx + batch_size])
             start_idx += batch_size
+
+    def _get_samples_seq(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> RolloutBufferSamples:
+        """
+        Sida: add short and long
+        """
+        data = (
+            self.observations[batch_inds],
+            self.actions[batch_inds],
+            self.values[batch_inds].flatten(),
+            self.log_probs[batch_inds].flatten(),
+            self.advantages[batch_inds].flatten(),
+            self.returns[batch_inds].flatten(),
+            self.short_hidden_states[batch_inds],
+            self.long_hidden_states[batch_inds],
+        )
+        return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
 class CustomizedRolloutBufferSamples(NamedTuple):
     observations: th.Tensor
