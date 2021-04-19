@@ -102,7 +102,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         stack_rollout_data_buf = []
 
         start_idx = 0
-        while start_idx < self.buffer_size - batch_size: # don't form sequence shorter than batch_size at the end
+        while start_idx <= self.buffer_size - batch_size: # don't form sequence shorter than batch_size at the end
             stack_rollout_data_i += 1
             batch_inds = indices[start_idx : start_idx + batch_size]
             data = (
