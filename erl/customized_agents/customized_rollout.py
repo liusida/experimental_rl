@@ -85,26 +85,21 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
-    def get_sequence(self, batch_size: Optional[int] = None, rnn_move_window_step=1) -> Generator[RolloutBufferSamples, None, None]:
+    def get_sequence(self, batch_size=256, rnn_seq_length=16, rnn_move_window_step=1) -> Generator[RolloutBufferSamples, None, None]:
         """ modified from get() 
         batch_size: is equivalent to rnn_sequence_length.
         """
         assert self.full, ""
         indices = np.arange(self.buffer_size)
 
-        # Return everything, don't create minibatches
-        if batch_size is None:
-            batch_size = self.buffer_size
-
-
-        stack_rollout_data = 16
+        stack_rollout_data = batch_size // self.n_envs # this is the actual batch size
         stack_rollout_data_i = 0
         stack_rollout_data_buf = []
 
         start_idx = 0
-        while start_idx <= self.buffer_size - batch_size: # don't form sequence shorter than batch_size at the end
+        while start_idx <= self.buffer_size - rnn_seq_length: # don't form sequence shorter than batch_size at the end
             stack_rollout_data_i += 1
-            batch_inds = indices[start_idx : start_idx + batch_size]
+            batch_inds = indices[start_idx : start_idx + rnn_seq_length]
             data = (
                 self.observations[batch_inds],
                 self.actions[batch_inds],
