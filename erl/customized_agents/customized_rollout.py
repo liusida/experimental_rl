@@ -119,6 +119,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             stack_rollout_data_buf.append(tuple(map(self.to_torch, data)))
             if stack_rollout_data_i % stack_rollout_data == 0:
                 a = zip(*stack_rollout_data_buf)
+                a = [th.cat(x, dim=1) for x in a]
                 # stack_rollout_data_buf = tuple([th.stack, stack_rollout_data_buf))
                 stack_rollout_data_buf = CustomizedRolloutBufferSamples(stack_rollout_data_buf)
                 yield stack_rollout_data_buf
