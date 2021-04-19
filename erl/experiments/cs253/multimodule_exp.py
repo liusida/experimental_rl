@@ -51,8 +51,9 @@ class MultiModuleExp:
             "net_arch": [dict(pi=[64, 64], vf=[64, 64])],
         }
 
-        self.model = CustomizedPPO(CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs,
-                                   device=self.device, verbose=1, rnn_move_window_step=args.rnn_move_window_step, rnn_sequence_length=args.rnn_sequence_length)
+        self.model = CustomizedPPO(
+            CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1,
+            rnn_move_window_step=args.rnn_move_window_step, rnn_sequence_length=args.rnn_sequence_length, use_sde=True)
 
     def train(self) -> None:
         """ Start training """
