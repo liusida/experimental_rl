@@ -6,10 +6,26 @@ git pull
 # 2021-04-18
 if true
 then
-    exp_name="RNNSeqLen"
+    exp_name="Delta"
     for seed in 0 1 2
     do
         common_args="--exp_name=$exp_name --sde --n_epochs=1 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed"
+        for seqlen in 8 16 32
+        do
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=1
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=4
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=$seqlen
+        done
+
+        common_args="--exp_name=$exp_name --sde --n_epochs=10 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed"
+        for seqlen in 8 16 32
+        do
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=1
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=4
+            sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=$seqlen
+        done
+
+        common_args="--exp_name=$exp_name --n_epochs=10 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed"
         for seqlen in 8 16 32
         do
             sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py $common_args --rnn_sequence_length=$seqlen --rnn_move_window_step=1
