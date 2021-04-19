@@ -53,7 +53,7 @@ class MultiModuleExp:
 
         self.model = CustomizedPPO(
             CustomizedPolicy, venv, n_steps=args.rollout_n_steps, tensorboard_log="tb", policy_kwargs=policy_kwargs, device=self.device, verbose=1,
-            rnn_move_window_step=args.rnn_move_window_step, rnn_sequence_length=args.rnn_sequence_length, use_sde=args.sde)
+            rnn_move_window_step=args.rnn_move_window_step, rnn_sequence_length=args.rnn_sequence_length, use_sde=args.sde, n_epochs=args.n_epochs)
 
     def train(self) -> None:
         """ Start training """
