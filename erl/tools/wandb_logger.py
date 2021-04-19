@@ -116,7 +116,7 @@ class WandbCallback(EventCallback):
     def save_model(self):
         if self.n_calls % self.model_save_interval == 0:
             filename = f"checkpoints/model_at_{self.num_timesteps}_steps.zip"
-            policy_filename = f"checkpoints/policy_at_{self.num_timesteps}_steps.h5"
+            # policy_filename = f"checkpoints/policy_at_{self.num_timesteps}_steps.h5"
             vnorm_filename = f"checkpoints/vnorm_at_{self.num_timesteps}_steps.vnorm.pkl"
 
             # Note: if we set the `experiment` member variable, the model will fail to save to local file system
@@ -124,12 +124,12 @@ class WandbCallback(EventCallback):
             _model = copy.copy(self.model)
             _model.experiment = None
             _model.save(os.path.join(wandb.run.dir, filename))
-            _model.policy.save(os.path.join(wandb.run.dir, policy_filename))
+            # _model.policy.save(os.path.join(wandb.run.dir, policy_filename))
             if self.args.vec_normalize:
                 _model.get_vec_normalize_env().save(os.path.join(wandb.run.dir, vnorm_filename))
             # After save to local file system, upload it to wandb
             wandb.save(filename)
-            wandb.save(policy_filename)
+            # wandb.save(policy_filename)
             if self.args.vec_normalize:
                 wandb.save(vnorm_filename)
 
