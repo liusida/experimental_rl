@@ -25,6 +25,7 @@ parser.add_argument("--implementation_check", action="store_true", help="use def
 parser.add_argument("--vec_normalize", action="store_true", help="use sb3 VecNormalization to improve performance.")
 parser.add_argument("--rnn_move_window_step", type=int, default=16, help="set to 1 for data efficiency, set to rollout_n_steps to get faster wall time.")
 parser.add_argument("--rnn_sequence_length", type=int, default=16, help="Length of a sequence for RNN to learn. (We don't BPTT for the whole episode, no need)")
+parser.add_argument("--sde", action="store_true", help="use gSDE exploration.")
 args = parser.parse_args()
 
 assert(args.rollout_n_steps%args.rnn_move_window_step==0)
