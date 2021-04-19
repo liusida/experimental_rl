@@ -27,7 +27,7 @@ class MultiExtractor(BaseFeaturesExtractor):
     RNN is not supported in sb3 yet.
     """
 
-    def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2):
+    def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2, rnn_layer_size=16):
         """
         modules: a string from command line arguments, so that we can specify what modules we want to use in command line.
                  f: flatten input (0 no, 1 yes)
@@ -49,7 +49,7 @@ class MultiExtractor(BaseFeaturesExtractor):
         self.final_layer_size = 0  # without n_input
         self.size_per_module = 0
         if self.num_parallel_sum:
-            self.final_layer_size = 16  # without n_input
+            self.final_layer_size = rnn_layer_size  # without n_input
             self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
         assert self.num_parallel_sum <= self.final_layer_size, "num_parallel_sum is too large"
 

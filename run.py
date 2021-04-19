@@ -25,6 +25,7 @@ parser.add_argument("--implementation_check", action="store_true", help="use def
 parser.add_argument("--vec_normalize", action="store_true", help="use sb3 VecNormalization to improve performance.")
 parser.add_argument("--rnn_move_window_step", type=int, default=16, help="set to 1 for data efficiency, set to rollout_n_steps to get faster wall time.")
 parser.add_argument("--rnn_sequence_length", type=int, default=16, help="Length of a sequence for RNN to learn. (We don't BPTT for the whole episode, no need)")
+parser.add_argument("--rnn_layer_size", type=int, default=16, help="hidden layer size for hx and cx.")
 parser.add_argument("--sde", action="store_true", help="use gSDE exploration.")
 parser.add_argument("--n_epochs", type=int, default=1, help="Since RNN has much more chance to learn, there's no need to use multiple epochs to learn from the same data. (I guess)")
 

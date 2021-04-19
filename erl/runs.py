@@ -19,6 +19,7 @@ def run_cs253(args):
         "flatten": args.flatten,
         "num_rnns": args.num_rnns,
         "num_mlps": args.num_mlps,
+        "rnn_layer_size": args.rnn_layer_size,
     }
     MultiModuleExp(env_id=args.env_id, features_extractor_kwargs=extractor_kwargs, args=args).train()
 
