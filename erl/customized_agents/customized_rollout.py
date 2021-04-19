@@ -96,9 +96,31 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         if batch_size is None:
             batch_size = self.buffer_size
 
+
+        stack_rollout_data = 16
+        stack_rollout_data_i = 0
+        stack_rollout_data_buf = []
+
         start_idx = 0
         while start_idx < self.buffer_size:
-            yield self._get_samples_seq(indices[start_idx : start_idx + batch_size])
+            stack_rollout_data_i += 1
+            batch_inds = indices[start_idx : start_idx + batch_size]
+            data = (
+                self.observations[batch_inds],
+                self.actions[batch_inds],
+                self.values[batch_inds],
+                self.log_probs[batch_inds],
+                self.advantages[batch_inds],
+                self.returns[batch_inds],
+                self.short_hidden_states[batch_inds],
+                self.long_hidden_states[batch_inds],
+                self.dones[batch_inds],
+            )
+            stack_rollout_data_buf.append(tuple(map(self.to_torch, data)))
+            if stack_rollout_data_i % stack_rollout_data == 0:
+                stack_rollout_data_buf = tuple(map(th.stack, stack_rollout_data_buf))
+                stack_rollout_data_buf = CustomizedRolloutBufferSamples(stack_rollout_data_buf)
+                yield stack_rollout_data_buf
             start_idx += rnn_move_window_step
 
     def _get_samples_seq(self, batch_inds: np.ndarray, env: Optional[VecNormalize] = None) -> RolloutBufferSamples:
