@@ -118,7 +118,8 @@ class CustomizedRolloutBuffer(RolloutBuffer):
             )
             stack_rollout_data_buf.append(tuple(map(self.to_torch, data)))
             if stack_rollout_data_i % stack_rollout_data == 0:
-                stack_rollout_data_buf = tuple(map(th.stack, stack_rollout_data_buf))
+                a = zip(*stack_rollout_data_buf)
+                # stack_rollout_data_buf = tuple([th.stack, stack_rollout_data_buf))
                 stack_rollout_data_buf = CustomizedRolloutBufferSamples(stack_rollout_data_buf)
                 yield stack_rollout_data_buf
             start_idx += rnn_move_window_step
