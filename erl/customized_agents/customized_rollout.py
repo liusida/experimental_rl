@@ -85,7 +85,7 @@ class CustomizedRolloutBuffer(RolloutBuffer):
         )
         return CustomizedRolloutBufferSamples(*tuple(map(self.to_torch, data)))
 
-    def get_sequence(self, batch_size=256, rnn_seq_length=16, rnn_move_window_step=1) -> Generator[RolloutBufferSamples, None, None]:
+    def get_sequence(self, batch_size, rnn_seq_length, rnn_move_window_step) -> Generator[RolloutBufferSamples, None, None]:
         """ modified from get() 
         batch_size: is equivalent to rnn_sequence_length.
         """
