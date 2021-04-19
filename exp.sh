@@ -7,20 +7,12 @@ git pull
 # 2021-04-18
 if true
 then
-    exp_name="Sigma"
+    exp_name="LongSigma"
     for seed in 0 1 2
     do
-        sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py --exp_name=$exp_name --sde --n_epochs=1 --rnn_move_window_step=1 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed
-    done
-fi
-
-
-if false
-then
-    exp_name="Sigma"
-    for seed in 0 1 2
-    do
-        sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py --exp_name=$exp_name --n_epochs=1 --rnn_move_window_step=1 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=3e6 --num_rnns=1 --seed=$seed
+        $common_cmd="sbatch -J $exp_name ~/bin/bluemoon.sh erl python run.py --exp_name=$exp_name --n_epochs=4 --rnn_sequence_length=16 --rnn_move_window_step=1 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=1e7 --num_rnns=1 --seed=$seed"
+        $common_cmd --sde 
+        $common_cmd
     done
 fi
 
