@@ -49,7 +49,7 @@ class MultiExtractor(BaseFeaturesExtractor):
         self.final_layer_size = 0  # without n_input
         self.size_per_module = 0
         if self.num_parallel_sum:
-            self.final_layer_size = 64  # without n_input
+            self.final_layer_size = 16  # without n_input
             self.size_per_module = int(self.final_layer_size / self.num_parallel_sum)  # this is why we need m to be power of 2
         assert self.num_parallel_sum <= self.final_layer_size, "num_parallel_sum is too large"
 
