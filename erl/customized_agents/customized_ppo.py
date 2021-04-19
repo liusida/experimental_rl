@@ -123,7 +123,7 @@ class CustomizedPPO(PPO):
         for epoch in range(self.n_epochs):
             approx_kl_divs = []
             # Do a complete pass on the rollout buffer
-            for rollout_data in self.rollout_buffer.get_sequence(batch_size=256, seq_len=self.rnn_sequence_length, rnn_move_window_step=self.rnn_move_window_step):
+            for rollout_data in self.rollout_buffer.get_sequence(batch_size=256, rnn_seq_length=self.rnn_sequence_length, rnn_move_window_step=self.rnn_move_window_step):
                 actions = rollout_data.actions
                 if isinstance(self.action_space, spaces.Discrete):
                     # Convert discrete action from float to long
