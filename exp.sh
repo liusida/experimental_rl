@@ -7,6 +7,18 @@ git pull
 # 2021-04-18
 if true
 then
+    exp_name="SeqLen256"
+    exp_description="stack sequences to speedup training rnn"
+    for seed in 0 1 2
+    do
+        common_cmd="python run.py --exp_name=$exp_name --n_epochs=10 --rnn_sequence_length=256 --rnn_move_window_step=1 --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=1e7 --num_rnns=1 --seed=$seed"
+        # sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd --sde 
+        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd
+    done
+fi
+
+if false
+then
     exp_name="StackSigma"
     exp_description="stack sequences to speedup training rnn"
     for seed in 0 1 2
