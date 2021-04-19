@@ -130,7 +130,7 @@ class CustomizedPPO(PPO):
                 # TODO: investigate why there is no issue with the gradient
                 # if that line is commented (as in SAC)
                 if self.use_sde:
-                    self.policy.reset_noise(self.batch_size) #TODO: enable this SDE?
+                    self.policy.reset_noise(self.rnn_sequence_length)
 
                 """
                 Sida: Change the input to evaluate_actions()
