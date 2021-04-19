@@ -73,3 +73,15 @@ class MultiModuleExp:
             )
         ]
         self.model.learn(self.args.total_timesteps, callback=callback)
+
+    def test(self, model_filename, vnorm_filename):
+        self.model.load(model_filename)
+        self.eval_env = VecNormalize.load(vnorm_filename, self.eval_env)
+        self.eval_env.render()
+        obs = self.eval_env.reset()
+        with self.model.policy.features_extractor.start_testing():
+            for i in range(1000):
+                action = self.model.predict(obs, deterministic=True)
+                self.eval_env.step(action)
+        
+        self.eval_env.close()

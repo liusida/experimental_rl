@@ -72,6 +72,12 @@ class CustomizedPPO(PPO):
                          gae_lambda=gae_lambda, clip_range=clip_range, clip_range_vf=clip_range_vf, ent_coef=ent_coef, vf_coef=vf_coef, max_grad_norm=max_grad_norm,
                          use_sde=use_sde, sde_sample_freq=sde_sample_freq, target_kl=target_kl, tensorboard_log=tensorboard_log, create_eval_env=create_eval_env,
                          policy_kwargs=policy_kwargs, verbose=verbose, seed=seed, device=device, _init_setup_model=_init_setup_model)
+
+        self.rnn_move_window_step = rnn_move_window_step
+        self.rnn_sequence_length = rnn_sequence_length
+
+    def _setup_model(self) -> None:
+        super()._setup_model()
         self.rollout_buffer = CustomizedRolloutBuffer(
             rnn_num_parallel_module=self.policy.features_extractor.num_parallel_rnns,
             rnn_size_per_module = self.policy.features_extractor.size_per_module,
@@ -82,9 +88,6 @@ class CustomizedPPO(PPO):
             gamma=self.gamma,
             gae_lambda=self.gae_lambda,
             n_envs=self.n_envs,)
-
-        self.rnn_move_window_step = rnn_move_window_step
-        self.rnn_sequence_length = rnn_sequence_length
 
     def train(self) -> None:
         """
