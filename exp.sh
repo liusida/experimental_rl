@@ -6,6 +6,18 @@ git pull
 # 2021-04-19
 if true
 then
+    exp_name="Baseline"
+    exp_description="flatten and mlp"
+    for seed in 0 1 2 3 4
+    do
+        common_cmd="python run.py --exp_name=$exp_name --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=1e7 --seed=$seed"
+        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd --num_rnns=1
+        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd --flatten
+    done
+fi
+
+if false
+then
     exp_name="Zeta"
     exp_description="sweep the hyperparameters"
     for seed in 0 1 2 3 4

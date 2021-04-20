@@ -5,6 +5,7 @@ data/
 trained_models/
 references/
 wandb/
+videos/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
