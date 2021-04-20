@@ -19,11 +19,9 @@ class MultiExtractorWithCNN(MultiExtractor):
         self.cnn = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1)
 
     def forward(self, observations: th.Tensor, new_start: Optional[th.Tensor]) -> th.Tensor:
-        # obs = 10 + joints + 8x8x3
-        image = observations[:, -8*8*3:].reshape([-1,3,8,8])
-        import matplotlib.pyplot as plt
-        plt.imshow(image[0, 0,:,:])
-        plt.show()
-        print(observations.shape)
+        # obs = 10 + joints + 3x8x8
+        image = observations[:, -3*8*8:].reshape([-1,3,8,8])
+        x = self.cnn(image)
+        print(x.shape)
         print("")
         return super().forward(observations, new_start=new_start)
