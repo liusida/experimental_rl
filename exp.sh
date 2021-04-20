@@ -3,8 +3,34 @@ set -x
 
 git pull
 
-# 2021-04-19
+
+# 2021-4-20
 if true
+then
+    exp_name="Zeta"
+    exp_description="sweep the hyperparameters II, for more n_epochs"
+    for seed in 0 1 2 3 4
+    do
+        for n_epochs in 20 40 80
+        do
+            for moving_step in 1
+            do
+                for seqlen in 16
+                do
+                    for rnn_layer_size in 64
+                    do
+                        common_cmd="python run.py --exp_name=$exp_name --n_epochs=$n_epochs --rnn_sequence_length=$seqlen --rnn_move_window_step=$moving_step --rnn_layer_size=$rnn_layer_size --vec_normalize --env_id=HopperBulletEnv-v0 --total_timesteps=1e7 --num_rnns=1 --seed=$seed"
+                        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd
+                    done
+                done
+            done
+        done
+    done
+fi
+
+
+# 2021-04-19
+if false
 then
     exp_name="VisionCNN"
     exp_description="use walker2d with vision environment, use CNN extractor before RNN"
@@ -16,7 +42,7 @@ then
     done
 fi
 
-if true
+if false
 then
     exp_name="Baseline"
     exp_description="flatten and mlp"
