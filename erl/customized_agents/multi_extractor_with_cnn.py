@@ -8,6 +8,9 @@ from .multi_extractor import MultiExtractor
 
 class MultiExtractorWithCNN(MultiExtractor):
     def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2, rnn_layer_size=16):
+        dim = gym.spaces.utils.flatdim(observation_space)
+        dim -= 3*8*8 # minus image
+        dim += 42 # plus image features
         super().__init__(
             observation_space=observation_space,
             num_envs=num_envs,
@@ -39,6 +42,6 @@ class MultiExtractorWithCNN(MultiExtractor):
         x = F.relu(self.layer2(x))
         x = F.relu(self.layer3(x))
         observations = th.cat([x0, self.flatten(x)], dim=1)
-        print(observations.shape)
+        print(x.shape)
         print("")
         return super().forward(observations, new_start=new_start)
