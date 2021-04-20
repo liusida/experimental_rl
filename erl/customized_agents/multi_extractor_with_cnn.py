@@ -10,6 +10,7 @@ from .multi_extractor import MultiExtractor
 
 class MultiExtractorWithCNN(MultiExtractor):
     def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2, rnn_layer_size=16):
+        # change the obs dim for MultiExtractor
         dim = gym.spaces.utils.flatdim(observation_space)
         dim -= 3*8*8 # minus image
         dim += 16 # plus image features
@@ -38,13 +39,10 @@ class MultiExtractorWithCNN(MultiExtractor):
 
     def forward(self, observations: th.Tensor, new_start: Optional[th.Tensor]) -> th.Tensor:
         # obs = 10 + joints + 3x8x8
-        print(observations.shape)
         x0 = observations[:, :-3*8*8]
         x = observations[:, -3*8*8:].reshape([-1,3,8,8])
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
         x = F.relu(self.layer3(x))
         observations = th.cat([x0, self.flatten(x)], dim=1)
-        print(x.shape)
-        print("")
         return super().forward(observations, new_start=new_start)
