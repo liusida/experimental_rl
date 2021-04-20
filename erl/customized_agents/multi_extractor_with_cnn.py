@@ -21,16 +21,20 @@ class MultiExtractorWithCNN(MultiExtractor):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = nn.Sequential(
-            nn.Conv2d(in_channels=8, out_channels=16, kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=5, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
-        self.cnn = nn.Conv2d(in_channels=3, out_channels=16, kernel_size=3, stride=1)
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(in_channels=8, out_channels=8, kernel_size=5, stride=1, padding=2),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2))
 
     def forward(self, observations: th.Tensor, new_start: Optional[th.Tensor]) -> th.Tensor:
         # obs = 10 + joints + 3x8x8
         x = observations[:, -3*8*8:].reshape([-1,3,8,8])
         x = F.relu(self.layer1(x))
         x = F.relu(self.layer2(x))
+        x = F.relu(self.layer3(x))
         print(x.shape)
         print("")
         return super().forward(observations, new_start=new_start)
