@@ -31,6 +31,8 @@ parser.add_argument("--n_epochs", type=int, default=1, help="Since RNN has much 
 
 parser.add_argument("--run_name", type=str, default="")
 parser.add_argument("--exp_desc", type=str, default="")
+
+parser.add_argument("--cnn", action="store_true", help="use CNN extractor")
 args = parser.parse_args()
 
 assert(args.rollout_n_steps%args.rnn_move_window_step==0)

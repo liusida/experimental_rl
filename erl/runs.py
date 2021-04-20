@@ -2,6 +2,7 @@ import numpy as np
 import torch as th
 
 from erl.customized_agents.multi_extractor import MultiExtractor
+from erl.customized_agents.multi_extractor_with_cnn import MultiExtractorWithCNN
 from erl.experiments.cs253.multimodule_exp import MultiModuleExp
 
 def run_current_exp(args):
@@ -21,7 +22,8 @@ def run_cs253(args):
         "num_mlps": args.num_mlps,
         "rnn_layer_size": args.rnn_layer_size,
     }
-    MultiModuleExp(env_id=args.env_id, features_extractor_kwargs=extractor_kwargs, args=args).train()
+
+    MultiModuleExp(env_id=args.env_id, features_extractor_class=MultiExtractor if not args.cnn else MultiExtractorWithCNN, features_extractor_kwargs=extractor_kwargs, args=args).train()
 
 def run_default(args):
     """ default flatten version, no customization.
