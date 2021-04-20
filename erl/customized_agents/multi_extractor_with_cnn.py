@@ -1,5 +1,7 @@
 from typing import Any, Dict, List, Optional, Tuple, Type, Union
+
 import gym
+import numpy as np
 import torch as th
 from torch import nn
 from torch.nn import functional as F
@@ -10,9 +12,10 @@ class MultiExtractorWithCNN(MultiExtractor):
     def __init__(self, observation_space: gym.Space, num_envs=2, flatten=1, num_rnns=2, num_mlps=2, rnn_layer_size=16):
         dim = gym.spaces.utils.flatdim(observation_space)
         dim -= 3*8*8 # minus image
-        dim += 42 # plus image features
+        dim += 16 # plus image features
+        new_observation_space = gym.spaces.Box(low=-np.inf, high=np.inf, shape=(dim,))
         super().__init__(
-            observation_space=observation_space,
+            observation_space=new_observation_space, # change the dim
             num_envs=num_envs,
             flatten=flatten,
             num_rnns=num_rnns,
