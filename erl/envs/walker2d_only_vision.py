@@ -14,8 +14,8 @@ class Walker2DOnlyVision(Walker2D):
     """ a third person view. like controling a game. """
     def __init__(self):
         self.p = None
-        self.camera_width = 8
-        self.camera_height = 8
+        self.camera_width = 64
+        self.camera_height = 64
         self.camera_channel = 3
         self.gravity = -9.8
         super().__init__()
