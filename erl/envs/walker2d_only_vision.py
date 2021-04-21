@@ -49,7 +49,7 @@ class Walker2DOnlyVision(Walker2D):
             self.p.setGravity(0, 0, self.gravity)
 
             # Precalculate the projection matrix
-            fov, aspect, nearplane, farplane = 30, 1.0, 0.01, 100
+            fov, aspect, nearplane, farplane = 45, 1.0, 0.01, 100
             self.projection_matrix = self.p.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
 
             # Get Index
