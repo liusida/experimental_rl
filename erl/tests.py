@@ -1,5 +1,6 @@
 import time, os, glob
 import cv2
+import numpy as np
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -39,9 +40,9 @@ def test_current_exp(args):
                 if args.save_img:
                     callback.write_a_image(current_folder=current_folder, step=i, target_env=env.envs[0])
                     if obs.shape[1]>100: # With Vision I guess
-                        image = obs[:, -3*8*8:].reshape([3,8,8]).rollaxis(0, start=2)
+                        image = np.rollaxis(obs[:, -3*8*8:].reshape([3,8,8]), 0, start=3) * 255.0
                         print(image.shape)
-                        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                        # image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
                         cv2.imwrite(f"{current_folder}/vision_{i:05}.png", image)
                 if done:
                     break
