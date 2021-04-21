@@ -11,6 +11,7 @@ def debug_imshow(img):
     plt.show()
 
 class Walker2DOnlyVision(Walker2D):
+    """ a third person view. like controling a game. """
     def __init__(self):
         self.p = None
         self.camera_width = 8
@@ -43,6 +44,11 @@ class Walker2DOnlyVision(Walker2D):
             # Turn on the Debug GUI
             self.p.configureDebugVisualizer(self.p.COV_ENABLE_GUI, 1)
             self.p.setGravity(0,0,self.gravity)
+
+            distance = 3
+            pitch = -30
+            yaw = 0
+
             # Precalculate the projection matrix
             fov, aspect, nearplane, farplane = 128, 1.0, 0.01, 100
             self.projection_matrix = self.p.computeProjectionMatrixFOV(fov, aspect, nearplane, farplane)
@@ -53,18 +59,15 @@ class Walker2DOnlyVision(Walker2D):
             # Change the camera_lens to white, just to make sure the camera is mounted on the right body part
             self.p.changeVisualShape(self.robot_id, self.camera_lens_id,rgbaColor=[1,1,1,1])
 
+        # Why I need to '*1.1' here?
+        _current_x = self.body_xyz[0] * 1.1
+        _current_y = self.body_xyz[1] * 1.1
 
-        com_p, com_o, _, _, _, _ = self.p.getLinkState(self.robot_id, self.camera_lens_id, computeForwardKinematics=True)
-        rot_matrix = self.p.getMatrixFromQuaternion(com_o)
-        rot_matrix = np.array(rot_matrix).reshape(3, 3)
-        # Initial vectors
-        init_camera_vector = (1, 0, 0) # x-axis
-        init_up_vector = (0, 0, 1) # z-axis
-        # Rotated vectors
-        camera_vector = rot_matrix.dot(init_camera_vector)
-        up_vector = rot_matrix.dot(init_up_vector)
-        view_matrix = self.p.computeViewMatrix(com_p + 0.1 * camera_vector, com_p + 0.2 * camera_vector, up_vector)
-        _, _, rgbPixels, depthPixels, segmentationMaskBuffer = self.p.getCameraImage(self.camera_width, self.camera_height, view_matrix, self.projection_matrix)
+        lookat = [_current_x, _current_y, 0.7]
+        
+        ret = self.p.getDebugVisalizerCamera()
+        view_matrix,projection_matrix = ret[1],ret[2]
+        _, _, rgbPixels, depthPixels, segmentationMaskBuffer = self.p.getCameraImage(self.camera_width, self.camera_height, view_matrix, projection_matrix)
         return rgbPixels
 
     def calc_state(self):
