@@ -1,4 +1,5 @@
 import time, os, glob
+import cv2
 
 from erl.customized_agents.customized_ppo import CustomizedPPO
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
@@ -18,8 +19,7 @@ def test_current_exp(args):
         print(f"Writing into {current_folder}")
         input("Press Enter...")
 
-    env_id="HopperBulletEnv-v0"
-    env = DummyVecEnv([make_env(env_id=env_id, rank=0, seed=0, render=True)])
+    env = DummyVecEnv([make_env(env_id=args.env_id, rank=0, seed=0, render=True)])
     env = VecNormalize.load(args.vnorm_filename, env)
     model = CustomizedPPO.load(args.model_filename, env=env)
     callback = AdjustCameraCallback()
@@ -38,6 +38,11 @@ def test_current_exp(args):
                 callback.camera_simpy_follow_robot(target_env=env.envs[0])
                 if args.save_img:
                     callback.write_a_image(current_folder=current_folder, step=i, target_env=env.envs[0])
+                    if obs.shape[1]>100: # With Vision I guess
+                        image = obs[:, -3*8*8:].reshape([3,8,8]).rollaxis(0, start=2)
+                        print(image.shape)
+                        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+                        cv2.imwrite(f"{current_folder}/vision_{i:05}.png", image)
                 if done:
                     break
                 time.sleep(0.01)
