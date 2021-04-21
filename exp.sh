@@ -12,8 +12,8 @@ then
     for seed in 0 1 2 3 4
     do
         common_cmd="python run.py --exp_name=$exp_name --n_epochs=10 --rnn_sequence_length=16 --rnn_move_window_step=1 --rnn_layer_size=64 --vec_normalize --env_id=HopperMaskEnv-v0 --total_timesteps=1e7 --seed=$seed"
-        sbatch -J $exp_name ~/bin/deepgreen.sh erl $common_cmd --num_rnns=1
-        sbatch -J $exp_name ~/bin/deepgreen.sh erl $common_cmd --flatten
+        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd --num_rnns=1
+        sbatch -J $exp_name ~/bin/bluemoon.sh erl $common_cmd --flatten
     done
 fi
 
