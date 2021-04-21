@@ -66,7 +66,7 @@ class Walker2DOnlyVision(Walker2D):
 
         # ret = self.p.getDebugVisualizerCamera()
         # view_matrix, projection_matrix = ret[1], ret[2]
-        view_matrix = self.p.computeViewMatrixFromYawPitchRoll(distance=3, yaw = 0, pitch=-25, roll=0, cameraTargetPosition=lookat, upAxisIndex=2)
+        view_matrix = self.p.computeViewMatrixFromYawPitchRoll(distance=3, yaw = 0, pitch=-20, roll=0, cameraTargetPosition=lookat, upAxisIndex=2)
         _, _, rgbPixels, depthPixels, segmentationMaskBuffer = self.p.getCameraImage(self.camera_width, self.camera_height, view_matrix, self.projection_matrix)
         return rgbPixels
 
