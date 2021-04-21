@@ -29,11 +29,11 @@ class MultiExtractorWithCNN(MultiExtractor):
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer2 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=7, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.layer3 = nn.Sequential(
-            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=5, stride=1, padding=2),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=7, stride=1, padding=2),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2))
         self.flatten = nn.Flatten()
