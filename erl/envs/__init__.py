@@ -15,3 +15,7 @@ register(id='Walker2DwithVisionEnv-v0',
 register(id='Walker2DOnlyVisionEnv-v0',
          entry_point='erl.envs.walker2d_only_vision:Walker2DOnlyVisionEnv',
          max_episode_steps=1000)
+
+register(id='HopperMaskEnv-v0',
+         entry_point='erl.envs.hopper_mask:HopperMaskEnv',
+         max_episode_steps=1000)
