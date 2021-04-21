@@ -21,7 +21,7 @@ class AdjustCameraCallback(EventCallback):
         if not hasattr(self, "camera_angle"): # lazy init
             self.camera_angle = 0.0
         self.camera_angle += 0.1
-        distance = 3
+        distance = 1
         pitch = -30
         if rotate:
             # rotate at 60 degree.
