@@ -67,7 +67,7 @@ class Walker2DOnlyVision(Walker2D):
         
         ret = self.p.getDebugVisualizerCamera()
         view_matrix,projection_matrix = ret[1],ret[2]
-        _, _, rgbPixels, depthPixels, segmentationMaskBuffer = self.p.getCameraImage(self.camera_width, self.camera_height, view_matrix, projection_matrix)
+        _, _, rgbPixels, depthPixels, segmentationMaskBuffer = self.p.getCameraImage(self.camera_width, self.camera_height, view_matrix, self.projection_matrix)
         return rgbPixels
 
     def calc_state(self):
