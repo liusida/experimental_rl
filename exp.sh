@@ -7,6 +7,18 @@ git pull
 # 2021-4-20
 if true
 then
+    exp_name="MaskEnv"
+    exp_description="Test RNN on Masked Hopper, see if RNN has advantages."
+    for seed in 0 1 2 3 4
+    do
+        common_cmd="python run.py --exp_name=$exp_name --n_epochs=10 --rnn_sequence_length=16 --rnn_move_window_step=1 --rnn_layer_size=64 --vec_normalize --env_id=HopperMaskEnv-v0 --total_timesteps=1e7 --seed=$seed"
+        sbatch -J $exp_name ~/bin/deepgreen.sh erl $common_cmd --num_rnns=1
+        sbatch -J $exp_name ~/bin/deepgreen.sh erl $common_cmd --flatten
+    done
+fi
+
+if false
+then
     exp_name="ThirdPerson"
     exp_description="Test CNN RNN with only third person vision observation."
     for seed in 0 1 2 3 4
