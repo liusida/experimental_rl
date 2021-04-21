@@ -7,6 +7,10 @@ git pull
 # 2021-4-20
 if true
 then
+done
+
+if false
+then
     exp_name="Zeta"
     exp_description="sweep the hyperparameters II, for more n_epochs"
     for seed in 0 1 2 3 4
