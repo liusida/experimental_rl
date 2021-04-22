@@ -7,7 +7,7 @@ git pull
 # 2021-4-20
 if true
 then
-    exp_name="MaskEnv"
+    exp_name="MaskEnv2"
     exp_description="Test RNN on Masked Hopper, see if RNN has advantages."
     for seed in 0 1 2 3 4
     do
